@@ -237,7 +237,7 @@ export default function Dashboard() {
 
       {/* ── Header ── */}
       <header
-        className="flex-shrink-0 px-8 py-4 flex items-center justify-between"
+        className="flex-shrink-0 px-3 md:px-8 py-2 md:py-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-2"
         style={{
           background: 'linear-gradient(180deg, rgba(30,40,80,0.4) 0%, transparent 100%)',
           borderBottom: '1px solid rgba(59,130,246,0.15)',
@@ -245,70 +245,67 @@ export default function Dashboard() {
         }}
       >
         {/* Title */}
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="hidden md:flex flex-col gap-0.5">
             <div className="w-1.5 h-5 rounded-full bg-blue-400" style={{ boxShadow: '0 0 10px #60A5FA' }} />
             <div className="w-1.5 h-5 rounded-full bg-blue-600" style={{ boxShadow: '0 0 10px #2563EB' }} />
           </div>
           <div>
             <h1
-              className="text-2xl font-black tracking-[0.2em] leading-tight"
+              className="text-base md:text-2xl font-black tracking-[0.1em] md:tracking-[0.2em] leading-tight whitespace-nowrap"
               style={{ textShadow: '0 0 20px rgba(96,165,250,0.8)' }}
             >
               매플 순공리그
             </h1>
-            <p className="text-xs font-bold tracking-[0.5em] text-blue-500 mt-0.5">{SEASON_NAME}</p>
+            <p className="text-[9px] md:text-xs font-bold tracking-[0.3em] md:tracking-[0.5em] text-blue-500">{SEASON_NAME}</p>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-8">
+        {/* Stats — 모바일 2줄 */}
+        <div className="flex items-center gap-3 md:gap-8 flex-wrap justify-end">
           <Stat value={`Day ${elapsed}`} label="경과일" accent />
-          <Divider />
+          <span className="hidden md:block"><Divider /></span>
           <Stat value={`${seasonProgress}%`} label="시즌진행률" accent />
-          <Divider />
+          <span className="hidden md:block"><Divider /></span>
           <Stat value={`${participantCount}명`} label="참가인원" accent />
-          <Divider />
+          <span className="hidden md:block"><Divider /></span>
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2">
-              <p
-                className="text-xl font-black leading-tight tabular-nums font-mono"
-                style={{ color: '#60A5FA', textShadow: '0 0 12px rgba(96,165,250,0.6)' }}
-              >
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-sm md:text-xl font-black leading-tight tabular-nums font-mono"
+                style={{ color: '#60A5FA', textShadow: '0 0 12px rgba(96,165,250,0.6)' }}>
                 {clock}
               </p>
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0" style={{ boxShadow: '0 0 6px #22C55E' }} />
             </div>
-            <p className="text-[10px] uppercase tracking-widest text-gray-600 mt-0.5">현재시각</p>
+            <p className="text-[8px] md:text-[10px] uppercase tracking-widest text-gray-600">현재시각</p>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors"
-          >
+        <div className="hidden md:flex items-center gap-3">
+          <Link href="/" className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors">
             🏠 홈
           </Link>
-          <button
-            onClick={toggleFullscreen}
-            className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors"
-          >
+          <button onClick={toggleFullscreen} className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors">
             ⛶ 전체화면
           </button>
         </div>
       </header>
 
       {/* ── Column headers ── */}
-      <div
-        className="flex-shrink-0 px-8 py-2"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-      >
-        <div
-          className="grid text-xs font-bold uppercase tracking-widest text-gray-600"
-          style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem' }}
-        >
+      <div className="flex-shrink-0 px-3 md:px-8 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        {/* Mobile */}
+        <div className="grid md:hidden text-[10px] font-bold uppercase tracking-wider text-gray-600"
+          style={{ gridTemplateColumns: '2.2rem 1fr 3.5rem 3.5rem 5.5rem' }}>
+          <span className="text-center">#</span>
+          <span className="pl-1">이름</span>
+          <span className="text-right">누적</span>
+          <span className="text-right">일평균</span>
+          <span className="text-center">티어</span>
+        </div>
+        {/* Desktop */}
+        <div className="hidden md:grid text-xs font-bold uppercase tracking-widest text-gray-600"
+          style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem' }}>
           <span className="text-center">순위</span>
           <span className="pl-2">이름</span>
           <span>학교</span>
@@ -323,127 +320,66 @@ export default function Dashboard() {
       </div>
 
       {/* ── Rows ── */}
-      <div className="flex-1 overflow-hidden px-8 py-2 flex flex-col gap-1">
+      <div className="flex-1 overflow-hidden px-3 md:px-8 py-1 md:py-2 flex flex-col gap-0.5 md:gap-1">
         {pageRows.map((row) => {
           const tier   = getTier(row.daily_avg);
           const isTop3 = row.rank <= 3;
           const mColor = isTop3 ? MEDAL_COLOR[row.rank - 1] : null;
+          const rowBg = isTop3
+            ? `linear-gradient(120deg, ${mColor}18 0%, ${tier.color}0a 60%, rgba(10,10,20,0.9) 100%)`
+            : `linear-gradient(120deg, ${tier.color}0a 0%, rgba(10,10,20,0.95) 100%)`;
+          const rowBorder = `1px solid ${isTop3 ? mColor + '35' : tier.color + '18'}`;
 
           return (
-            <div
-              key={row.student_id}
-              className="grid items-center rounded-lg px-3 transition-all duration-500"
-              style={{
-                gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem',
-                flex: '1 1 0',
-                minHeight: 0,
-                background: isTop3
-                  ? `linear-gradient(120deg, ${mColor}18 0%, ${tier.color}0a 60%, rgba(10,10,20,0.9) 100%)`
-                  : `linear-gradient(120deg, ${tier.color}0a 0%, rgba(10,10,20,0.95) 100%)`,
-                border: `1px solid ${isTop3 ? mColor + '35' : tier.color + '18'}`,
-                boxShadow: isTop3
-                  ? `0 0 24px ${mColor}18, inset 0 0 30px ${tier.color}0a`
-                  : `inset 0 0 12px ${tier.color}06`,
-              }}
-            >
-              {/* 순위 */}
-              <div className="flex justify-center items-center">
-                {isTop3 ? (
-                  <span
-                    className="text-xl font-black"
-                    style={{ filter: `drop-shadow(0 0 6px ${mColor})` }}
-                  >
-                    {MEDAL[row.rank - 1]}
-                  </span>
-                ) : (
-                  <span className="text-base font-bold tabular-nums" style={{ color: '#6B7280' }}>
-                    {row.rank}
-                  </span>
-                )}
+            <div key={row.student_id} style={{ flex: '1 1 0', minHeight: 0 }}>
+              {/* Mobile row */}
+              <div className="md:hidden grid items-center rounded-lg px-2 h-full"
+                style={{ gridTemplateColumns: '2.2rem 1fr 3.5rem 3.5rem 5.5rem', background: rowBg, border: rowBorder }}>
+                <div className="flex justify-center">
+                  {isTop3 ? <span className="text-base" style={{ filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
+                    : <span className="text-xs font-bold tabular-nums" style={{ color: '#6B7280' }}>{row.rank}</span>}
+                </div>
+                <span className="font-bold text-xs leading-none truncate pl-1" style={{ color: isTop3 ? '#FFF' : '#D1D5DB' }}>{row.name}</span>
+                <span className="text-right font-semibold text-gray-300 tabular-nums text-xs">{row.total}</span>
+                <span className="text-right font-black tabular-nums text-xs" style={{ color: tier.color }}>{row.daily_avg}</span>
+                <div className="flex justify-center">
+                  <span className="text-[9px] font-black whitespace-nowrap" style={{ color: tier.color }}>{tier.emoji}{tier.name.slice(0, 3)}</span>
+                </div>
               </div>
 
-              {/* 이름 + 순위 변동 */}
-              <div className="flex items-center gap-2 pl-2">
-                <span
-                  className="font-bold text-base leading-none"
-                  style={{
-                    color: isTop3 ? '#FFFFFF' : '#D1D5DB',
-                    textShadow: isTop3 ? `0 0 10px ${mColor}80` : 'none',
-                  }}
-                >
-                  {row.name}
-                </span>
-                {row.rankDelta !== null && row.rankDelta !== 0 && (
-                  <span
-                    className="text-[10px] font-black px-1 py-0.5 rounded"
-                    style={{
-                      color:      row.rankDelta > 0 ? '#34D399' : '#F87171',
-                      background: row.rankDelta > 0 ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                    }}
-                  >
-                    {row.rankDelta > 0 ? `▲${row.rankDelta}` : `▼${Math.abs(row.rankDelta)}`}
+              {/* Desktop row */}
+              <div className="hidden md:grid items-center rounded-lg px-3 h-full transition-all duration-500"
+                style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem', background: rowBg, border: rowBorder,
+                  boxShadow: isTop3 ? `0 0 24px ${mColor}18, inset 0 0 30px ${tier.color}0a` : `inset 0 0 12px ${tier.color}06` }}>
+                <div className="flex justify-center items-center">
+                  {isTop3 ? <span className="text-xl font-black" style={{ filter: `drop-shadow(0 0 6px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
+                    : <span className="text-base font-bold tabular-nums" style={{ color: '#6B7280' }}>{row.rank}</span>}
+                </div>
+                <div className="flex items-center gap-2 pl-2">
+                  <span className="font-bold text-base leading-none" style={{ color: isTop3 ? '#FFFFFF' : '#D1D5DB', textShadow: isTop3 ? `0 0 10px ${mColor}80` : 'none' }}>{row.name}</span>
+                  {row.rankDelta !== null && row.rankDelta !== 0 && (
+                    <span className="text-[10px] font-black px-1 py-0.5 rounded" style={{ color: row.rankDelta > 0 ? '#34D399' : '#F87171', background: row.rankDelta > 0 ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)' }}>
+                      {row.rankDelta > 0 ? `▲${row.rankDelta}` : `▼${Math.abs(row.rankDelta)}`}
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm text-gray-500">{row.school}</span>
+                <span className="text-center text-sm text-gray-600">{row.grade}</span>
+                <span className="text-right pr-2 font-semibold text-gray-300 tabular-nums text-sm">{row.total}</span>
+                <span className="text-right pr-2 text-gray-600 tabular-nums text-sm">{row.total_goal > 0 ? row.total_goal : '—'}</span>
+                <span className="text-right pr-2 font-black tabular-nums text-base leading-none" style={{ color: tier.color, textShadow: `0 0 10px ${tier.glow}` }}>{row.daily_avg}</span>
+                <span className="text-right pr-2 font-semibold tabular-nums text-sm" style={{ color: row.dailyRequired > row.daily_avg ? '#F87171' : '#34D399' }}>{row.total_goal > 0 ? `${row.dailyRequired}` : '—'}</span>
+                <div className="flex justify-center">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider whitespace-nowrap"
+                    style={{ color: tier.color, background: tier.glow, border: `1px solid ${tier.color}35`, boxShadow: `0 0 10px ${tier.glow}`, textShadow: `0 0 6px ${tier.color}` }}>
+                    {tier.emoji} {tier.name}
                   </span>
-                )}
-              </div>
-
-              {/* 학교 */}
-              <span className="text-sm text-gray-500">{row.school}</span>
-
-              {/* 학년 */}
-              <span className="text-center text-sm text-gray-600">{row.grade}</span>
-
-              {/* 누적 */}
-              <span className="text-right pr-2 font-semibold text-gray-300 tabular-nums text-sm">
-                {row.total}
-              </span>
-
-              {/* 총목표 */}
-              <span className="text-right pr-2 text-gray-600 tabular-nums text-sm">
-                {row.total_goal > 0 ? row.total_goal : '—'}
-              </span>
-
-              {/* 일평균 */}
-              <span
-                className="text-right pr-2 font-black tabular-nums text-base leading-none"
-                style={{ color: tier.color, textShadow: `0 0 10px ${tier.glow}` }}
-              >
-                {row.daily_avg}
-              </span>
-
-              {/* 일일 필요시간 */}
-              <span className="text-right pr-2 font-semibold tabular-nums text-sm"
-                style={{ color: row.dailyRequired > row.daily_avg ? '#F87171' : '#34D399' }}>
-                {row.total_goal > 0 ? `${row.dailyRequired}` : '—'}
-              </span>
-
-              {/* 티어 뱃지 */}
-              <div className="flex justify-center">
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider whitespace-nowrap"
-                  style={{
-                    color:       tier.color,
-                    background:  tier.glow,
-                    border:      `1px solid ${tier.color}35`,
-                    boxShadow:   `0 0 10px ${tier.glow}`,
-                    textShadow:  `0 0 6px ${tier.color}`,
-                  }}
-                >
-                  {tier.emoji} {tier.name}
-                </span>
-              </div>
-
-              {/* 목표 프로그레스 바 */}
-              <div className="px-1">
-                {row.total_goal > 0 ? (
-                  <GoalProgressBars compact
-                    seasonProgress={row.seasonProgress}
-                    achievement={row.achievement}
-                    totalGoal={row.total_goal}
-                    accumulated={row.total}
-                  />
-                ) : (
-                  <span className="text-[10px] text-gray-600">미설정</span>
-                )}
+                </div>
+                <div className="px-1">
+                  {row.total_goal > 0 ? (
+                    <GoalProgressBars compact seasonProgress={row.seasonProgress} achievement={row.achievement} totalGoal={row.total_goal} accumulated={row.total} />
+                  ) : <span className="text-[10px] text-gray-600">미설정</span>}
+                </div>
               </div>
             </div>
           );
@@ -452,47 +388,27 @@ export default function Dashboard() {
 
       {/* ── Footer ── */}
       <footer
-        className="flex-shrink-0 px-8 py-2 flex items-center justify-between"
+        className="flex-shrink-0 px-3 md:px-8 py-1.5 md:py-2 flex flex-wrap md:flex-nowrap items-center justify-between gap-1"
         style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
       >
-        {/* Page dots */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2">
           {Array.from({ length: numPages }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i)}
-              style={{
-                width:      i === page ? '28px' : '7px',
-                height:     '7px',
-                borderRadius: '4px',
-                background: i === page ? '#3B82F6' : '#1F2937',
-                boxShadow:  i === page ? '0 0 8px #3B82F6' : 'none',
-                border:     'none',
-                cursor:     'pointer',
-                transition: 'all 0.3s ease',
-              }}
-            />
+            <button key={i} onClick={() => setPage(i)}
+              style={{ width: i === page ? '20px' : '6px', height: '6px', borderRadius: '3px',
+                background: i === page ? '#3B82F6' : '#1F2937', boxShadow: i === page ? '0 0 8px #3B82F6' : 'none',
+                border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
           ))}
-          <span className="ml-3 text-xs text-gray-700 tabular-nums">
+          <span className="ml-1 md:ml-3 text-[10px] md:text-xs text-gray-700 tabular-nums">
             {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} / {rows.length}명
           </span>
         </div>
-
-        <span
-          className="text-[10px] font-bold tracking-[0.4em] text-gray-800 uppercase"
-        >
+        <span className="hidden md:block text-[10px] font-bold tracking-[0.4em] text-gray-800 uppercase">
           Maple Study League · Realtime Leaderboard
         </span>
-
-        {/* Tier legend (compact) */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
           {TIERS.slice(0, 5).map(t => (
-            <span
-              key={t.name}
-              className="text-[10px] font-bold"
-              style={{ color: t.color, textShadow: `0 0 6px ${t.glow}` }}
-            >
-              {t.emoji} {t.min}h+
+            <span key={t.name} className="text-[9px] md:text-[10px] font-bold" style={{ color: t.color, textShadow: `0 0 6px ${t.glow}` }}>
+              {t.emoji}{t.min}h+
             </span>
           ))}
         </div>
