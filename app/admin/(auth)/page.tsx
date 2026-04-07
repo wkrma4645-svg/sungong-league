@@ -1601,20 +1601,20 @@ export default function AdminPage() {
 
       {/* 탭 네비게이션 */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 overflow-x-auto scrollbar-none">
           <nav className="flex">
             {TABS.map(t => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   tab === t.id
                     ? 'border-blue-600 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <span>{t.icon}</span>
-                <span>{t.label}</span>
+                <span className="hidden sm:inline">{t.label}</span>
                 {t.id === 'entry' && unverifiedCount > 0 && (
                   <span className="ml-0.5 text-xs bg-red-500 text-white font-bold px-1.5 py-0.5 rounded-full">{unverifiedCount}</span>
                 )}
@@ -1630,7 +1630,7 @@ export default function AdminPage() {
       </div>
 
       {/* 탭 콘텐츠 */}
-      <main className="max-w-7xl mx-auto px-6 py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {tab === 'entry'         && <TabManualEntry   students={students} />}
         {tab === 'students'      && <TabStudents />}
         {tab === 'records'       && <TabRecords       students={students} />}

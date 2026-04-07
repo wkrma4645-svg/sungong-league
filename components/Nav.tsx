@@ -64,7 +64,7 @@ export default function Nav() {
             <Link
               key={href}
               href={href}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-colors"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors min-h-[44px]"
             >
               <span className={`text-xl leading-none transition-all ${active ? 'scale-110' : 'opacity-50'}`}>
                 {icon}

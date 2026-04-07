@@ -81,12 +81,12 @@ export default function RankingPage() {
       </header>
 
       {/* ── 과목 탭 ── */}
-      <div className="px-4 pt-4 pb-2 flex gap-2 overflow-x-auto scrollbar-none">
+      <div className="px-3 sm:px-4 pt-4 pb-2 flex gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
         {TABS.map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+            className="flex-shrink-0 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all min-h-[36px]"
             style={tab === t.key ? {
               background: t.glow,
               color: t.color,
@@ -112,15 +112,13 @@ export default function RankingPage() {
             <p className="text-gray-600 text-sm">로딩 중...</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             {/* 컬럼 헤더 */}
-            <div className="grid text-xs font-bold uppercase tracking-wider text-gray-700 px-4 py-2"
-              style={{ gridTemplateColumns: '3rem 1fr 4.5rem 3rem 5rem' }}>
-              <span className="text-center">순위</span>
+            <div className="grid text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-700 px-3 sm:px-4 py-2"
+              style={{ gridTemplateColumns: '2.2rem 1fr 4rem' }}>
+              <span className="text-center">#</span>
               <span>이름</span>
-              <span>학교</span>
-              <span className="text-center">학년</span>
-              <span className="text-right" style={{ color: activeTab.color }}>{activeTab.label}(h)</span>
+              <span className="text-right" style={{ color: activeTab.color }}>{activeTab.label}</span>
             </div>
 
             {ranked.map(row => {
@@ -130,9 +128,9 @@ export default function RankingPage() {
               return (
                 <div
                   key={row.id}
-                  className="grid items-center rounded-xl px-4 py-3 transition-all"
+                  className="grid items-center rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 transition-all"
                   style={{
-                    gridTemplateColumns: '3rem 1fr 4.5rem 3rem 5rem',
+                    gridTemplateColumns: '2.2rem 1fr 4rem',
                     background: isTop3
                       ? `linear-gradient(120deg, ${mColor}15 0%, ${activeTab.color}0a 60%, rgba(12,12,20,0.95) 100%)`
                       : `linear-gradient(120deg, ${activeTab.color}08 0%, rgba(12,12,20,0.95) 100%)`,
@@ -140,42 +138,24 @@ export default function RankingPage() {
                     boxShadow: isTop3 ? `0 0 20px ${mColor}12` : 'none',
                   }}
                 >
-                  {/* 순위 */}
                   <div className="flex justify-center">
                     {isTop3 ? (
-                      <span className="text-xl" style={{ filter: `drop-shadow(0 0 5px ${mColor})` }}>
-                        {MEDAL[row.rank - 1]}
-                      </span>
+                      <span className="text-lg sm:text-xl" style={{ filter: `drop-shadow(0 0 5px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
                     ) : (
-                      <span className="text-sm font-bold tabular-nums" style={{ color: '#4B5563' }}>
-                        {row.rank}
-                      </span>
+                      <span className="text-xs sm:text-sm font-bold tabular-nums" style={{ color: '#4B5563' }}>{row.rank}</span>
                     )}
                   </div>
 
-                  {/* 이름 */}
-                  <span
-                    className="font-bold text-sm"
-                    style={{ color: isTop3 ? '#FFFFFF' : '#D1D5DB',
-                      textShadow: isTop3 ? `0 0 8px ${mColor}60` : 'none' }}
-                  >
-                    {row.name}
-                  </span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-sm block truncate"
+                      style={{ color: isTop3 ? '#FFFFFF' : '#D1D5DB', textShadow: isTop3 ? `0 0 8px ${mColor}60` : 'none' }}>
+                      {row.name}
+                    </span>
+                    <span className="text-[10px] text-gray-600">{row.school} {row.grade}</span>
+                  </div>
 
-                  {/* 학교 */}
-                  <span className="text-xs text-gray-500">{row.school}</span>
-
-                  {/* 학년 */}
-                  <span className="text-center text-xs text-gray-600">{row.grade}</span>
-
-                  {/* 시간 */}
-                  <span
-                    className="text-right font-black text-base tabular-nums"
-                    style={{
-                      color: row.total > 0 ? activeTab.color : '#374151',
-                      textShadow: row.total > 0 ? `0 0 8px ${activeTab.glow}` : 'none',
-                    }}
-                  >
+                  <span className="text-right font-black text-sm sm:text-base tabular-nums"
+                    style={{ color: row.total > 0 ? activeTab.color : '#374151', textShadow: row.total > 0 ? `0 0 8px ${activeTab.glow}` : 'none' }}>
                     {row.total > 0 ? `${row.total}h` : '—'}
                   </span>
                 </div>

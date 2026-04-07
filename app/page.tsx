@@ -503,11 +503,11 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
                   <div key={key} className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-700 w-16">{label}</span>
                     <select value={manualHours[key].h} onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: Number(e.target.value) } }))}
-                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-800 bg-gray-50 w-16">
+                      className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-gray-800 bg-gray-50 w-[4.5rem] min-h-[44px]">
                       {Array.from({ length: 13 }, (_, i) => <option key={i} value={i}>{i}시간</option>)}
                     </select>
                     <select value={manualHours[key].m} onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: Number(e.target.value) } }))}
-                      className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-800 bg-gray-50 w-16">
+                      className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-gray-800 bg-gray-50 w-[4.5rem] min-h-[44px]">
                       {[0, 10, 15, 20, 30, 40, 45, 50].map(m => <option key={m} value={m}>{m}분</option>)}
                     </select>
                     <span className="text-xs text-gray-400 tabular-nums">

@@ -57,7 +57,7 @@ function BattleRow({ row, rank, maxScore }: { row: GroupResult; rank: number; ma
 
   return (
     <div
-      className="rounded-xl px-5 py-4 transition-all"
+      className="rounded-xl px-3 sm:px-5 py-3 sm:py-4 transition-all"
       style={{
         background: isTop3
           ? `linear-gradient(120deg, ${mColor}18 0%, rgba(12,12,22,0.97) 100%)`
@@ -66,9 +66,9 @@ function BattleRow({ row, rank, maxScore }: { row: GroupResult; rank: number; ma
         boxShadow: isTop3 ? `0 0 24px ${mColor}10` : 'none',
       }}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* 순위 */}
-        <div className="w-10 flex-shrink-0 flex justify-center">
+        <div className="w-8 sm:w-10 flex-shrink-0 flex justify-center">
           {isTop3 ? (
             <span className="text-2xl" style={{ filter: `drop-shadow(0 0 6px ${mColor})` }}>
               {MEDAL[rank - 1]}
@@ -79,7 +79,7 @@ function BattleRow({ row, rank, maxScore }: { row: GroupResult; rank: number; ma
         </div>
 
         {/* 이름 + 인원 */}
-        <div className="flex-shrink-0 w-20">
+        <div className="flex-shrink-0 w-14 sm:w-20">
           <p
             className="font-black text-base leading-tight"
             style={{ color: isTop3 ? '#FFFFFF' : '#D1D5DB', textShadow: isTop3 ? `0 0 10px ${mColor}60` : 'none' }}
@@ -104,7 +104,7 @@ function BattleRow({ row, rank, maxScore }: { row: GroupResult; rank: number; ma
         </div>
 
         {/* 점수 */}
-        <div className="flex-shrink-0 text-right w-36">
+        <div className="flex-shrink-0 text-right w-20 sm:w-36">
           <div className="flex items-baseline justify-end gap-2">
             <span
               className="text-xl font-black tabular-nums"
@@ -114,7 +114,7 @@ function BattleRow({ row, rank, maxScore }: { row: GroupResult; rank: number; ma
               {row.score}h
             </span>
           </div>
-          <p className="text-xs text-gray-600 mt-0.5">
+          <p className="hidden sm:block text-xs text-gray-600 mt-0.5">
             단순 {row.rawAvg}h
             <span className={`ml-1.5 font-semibold ${diffPct >= 0 ? 'text-green-600' : 'text-red-500'}`}>
               {diffPct >= 0 ? `+${diffPct}` : diffPct}%
@@ -200,12 +200,12 @@ export default function BattlePage() {
       </header>
 
       {/* ── 탭 ── */}
-      <div className="px-6 pt-5 pb-1 flex gap-2">
+      <div className="px-3 sm:px-6 pt-5 pb-1 flex gap-2">
         {([['school', '🏫 학교별'], ['grade', '🎓 학년별']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className="px-5 py-2 rounded-full text-sm font-semibold transition-all"
+            className="px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all min-h-[36px]"
             style={tab === key ? {
               background: 'rgba(59,130,246,0.2)',
               color: '#60A5FA',
@@ -223,7 +223,7 @@ export default function BattlePage() {
       </div>
 
       {/* ── 베이지안 설명 박스 ── */}
-      <div className="mx-6 mt-4 px-4 py-3 rounded-xl text-xs text-gray-600"
+      <div className="mx-3 sm:mx-6 mt-4 px-3 sm:px-4 py-3 rounded-xl text-xs text-gray-600"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
         <span className="text-gray-500 font-semibold">보정 공식: </span>
         보정점수 = (n / (n+{K})) × 그룹평균 + ({K} / (n+{K})) × 전체평균
