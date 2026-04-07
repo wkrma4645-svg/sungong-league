@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(node -e ':*)",
+      "Bash(npx next:*)",
+      "Bash(taskkill //f //im node.exe)",
+      "Bash(rm -rf .next)",
+      "Bash(curl -s http://localhost:3000/api/data/records)",
+      "Bash(PORT=4000 npx next dev -p 4000)",
+      "Bash(curl -s http://localhost:4000/api/data/records)",
+      "Bash(curl -s 'https://jaydmywnafyopmshgnbf.supabase.co/rest/v1/daily_records?student_id=eq.91ca7694-ad6e-4159-a492-d898a6c9baf8&record_date=eq.2026-04-05&select=total_hours,math_hours,english_hours,korean_hours,science_hours,social_hours,etc_hours' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI')",
+      "Bash(curl -s 'https://jaydmywnafyopmshgnbf.supabase.co/rest/v1/students?select=id,name,school&order=created_at.desc&limit=5' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI')",
+      "Bash(curl -s 'https://jaydmywnafyopmshgnbf.supabase.co/rest/v1/daily_records?student_id=eq.9ba2bfd9-8898-4faa-aa08-a89983c96f0c&select=record_date,math_hours,english_hours,korean_hours,science_hours,social_hours,etc_hours,total_hours&order=record_date.desc&limit=3' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpheWRteXduYWZ5b3Btc2hnbmJmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMxNjIyNywiZXhwIjoyMDkwODkyMjI3fQ.JlwuQDrWzn9vJOjEWnoLQj1sOdYufUiA8VYugIjJlnI')"
+    ]
+  }
+}
