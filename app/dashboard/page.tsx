@@ -219,9 +219,12 @@ export default function Dashboard() {
     <div className="md:hidden min-h-screen pb-20" style={{ background: '#0a0a0f', color: '#E5E7EB' }}>
       {/* 모바일 헤더 */}
       <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(59,130,246,0.15)' }}>
-        <div>
-          <p className="text-sm font-black" style={{ color: '#60A5FA' }}>매플 순공리그</p>
-          <p className="text-[10px] text-gray-600">{SEASON_NAME}</p>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="text-base opacity-40 hover:opacity-80 transition-opacity">🏠</Link>
+          <div>
+            <p className="text-sm font-black" style={{ color: '#60A5FA' }}>매플 순공리그</p>
+            <p className="text-[10px] text-gray-600">{SEASON_NAME}</p>
+          </div>
         </div>
         <div className="flex gap-3 text-xs font-bold tabular-nums" style={{ color: '#60A5FA' }}>
           <span>D{elapsed}</span>
