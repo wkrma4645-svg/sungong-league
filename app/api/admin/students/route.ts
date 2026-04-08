@@ -15,12 +15,16 @@ export async function POST(request: NextRequest) {
       .eq('is_active', true)
       .single();
 
+    const insertPayload = { ...body, season_id: season?.id ?? null };
+    console.log('[POST /api/admin/students] inserting:', JSON.stringify(insertPayload));
+
     const { data, error } = await supabase
       .from('students')
-      .insert({ ...body, season_id: season?.id ?? null })
+      .insert(insertPayload)
       .select()
       .single();
 
+    console.log('[POST /api/admin/students] result:', { data: data?.id, error: error?.message });
     if (error) return Response.json({ error: error.message }, { status: 500 });
     return Response.json({ success: true, student: data });
   } catch (e: unknown) {
@@ -51,7 +55,9 @@ export async function DELETE(request: NextRequest) {
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     const supabase = createServiceClient();
-    const { error } = await supabase.from('students').delete().eq('id', id);
+    console.log('[DELETE /api/admin/students] deleting id:', id);
+    const { error, count } = await supabase.from('students').delete().eq('id', id);
+    console.log('[DELETE /api/admin/students] result:', { error: error?.message, count });
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
     return Response.json({ success: true });
