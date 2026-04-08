@@ -216,7 +216,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className="h-screen flex flex-col overflow-hidden select-none"
+      className="min-h-screen md:h-screen flex flex-col md:overflow-hidden select-none"
       style={{ background: '#0a0a0f', color: '#E5E7EB' }}
     >
       {/* ── Progress bar (rotation timer) ── */}
@@ -318,7 +318,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Rows ── */}
-      <div className="flex-1 overflow-hidden px-3 md:px-8 py-1 md:py-2 flex flex-col gap-0.5 md:gap-1">
+      <div className="flex-1 overflow-y-auto md:overflow-hidden px-3 md:px-8 py-1 md:py-2 flex flex-col gap-0.5 md:gap-1">
         {pageRows.map((row) => {
           const tier   = getTier(row.daily_avg);
           const isTop3 = row.rank <= 3;
@@ -329,22 +329,22 @@ export default function Dashboard() {
           const rowBorder = `1px solid ${isTop3 ? mColor + '35' : tier.color + '18'}`;
 
           return (
-            <div key={row.student_id} style={{ flex: '1 1 0', minHeight: 0 }}>
-              {/* Mobile row — flex 고정폭, 겹침 방지 */}
-              <div className="md:hidden flex items-center rounded-lg px-1 h-full overflow-hidden"
+            <div key={row.student_id} className="md:flex-[1_1_0] md:min-h-0">
+              {/* Mobile row */}
+              <div className="md:hidden flex items-center rounded-lg px-2 py-2 overflow-hidden"
                 style={{ fontSize: '13px', background: rowBg, border: rowBorder }}>
-                <div className="shrink-0 flex justify-center items-center" style={{ width: '36px' }}>
+                <div style={{ width: '32px', flexShrink: 0, textAlign: 'center' }}>
                   {isTop3 ? <span style={{ fontSize: '16px', filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
-                    : <span className="font-bold tabular-nums" style={{ color: '#6B7280', fontSize: '12px' }}>{row.rank}</span>}
+                    : <span style={{ color: '#6B7280', fontSize: '12px', fontWeight: 700 }}>{row.rank}</span>}
                 </div>
-                <div className="flex-1 min-w-0 pl-1">
-                  <span className="block font-bold truncate" style={{ color: isTop3 ? '#FFF' : '#D1D5DB' }}>{row.name}</span>
+                <div style={{ flex: '1 1 0', minWidth: 0, paddingLeft: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                  <span style={{ fontWeight: 700, color: isTop3 ? '#FFF' : '#D1D5DB' }}>{row.name}</span>
                 </div>
-                <div className="shrink-0 text-right tabular-nums font-semibold text-gray-300" style={{ width: '50px' }}>
+                <div style={{ width: '48px', flexShrink: 0, textAlign: 'right', color: '#D1D5DB', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
                   {row.total}
                 </div>
-                <div className="shrink-0 flex justify-center" style={{ width: '65px' }}>
-                  <span className="font-black whitespace-nowrap" style={{ color: tier.color, fontSize: '10px' }}>{tier.emoji}{tier.name.slice(0,4)}</span>
+                <div style={{ width: '60px', flexShrink: 0, textAlign: 'center' }}>
+                  <span style={{ color: tier.color, fontSize: '10px', fontWeight: 900, whiteSpace: 'nowrap' }}>{tier.emoji}{tier.name.slice(0,4)}</span>
                 </div>
               </div>
 
