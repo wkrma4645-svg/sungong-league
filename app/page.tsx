@@ -413,7 +413,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
             <div className="bg-white rounded-2xl p-5 shadow-lg">
               <h2 className="text-gray-800 font-bold text-base mb-3">열품타 스크린샷</h2>
               <div {...getRootProps()} className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'}`}>
-                <input {...getInputProps()} capture="environment" />
+                <input {...getInputProps()} />
                 {previewUrl ? (
                   <div className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
