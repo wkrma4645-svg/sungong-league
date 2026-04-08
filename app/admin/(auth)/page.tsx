@@ -509,9 +509,7 @@ function StudentModal({
   );
 }
 
-function TabStudents() {
-  const [students,     setStudents]     = useState<Student[]>([]);
-  const [loading,      setLoading]      = useState(true);
+function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: () => Promise<void> }) {
   const [search,       setSearch]       = useState('');
   const [schoolFilter, setSchoolFilter] = useState('');
   const [modal,        setModal]        = useState<{ mode: 'add' | 'edit'; data: Partial<StudentFormData> } | null>(null);
@@ -523,22 +521,13 @@ function TabStudents() {
   const [sortKey,      setSortKey]      = useState<string>('name');
   const [sortDir,      setSortDir]      = useState<'asc' | 'desc'>('asc');
 
-  const fetchStudents = useCallback(async () => {
-    const res = await fetch('/api/data/students-all');
-    const data = await res.json();
-    setStudents(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { fetchStudents(); }, [fetchStudents]);
-
   const toggleActive = async (id: string, cur: boolean) => {
     await fetch('/api/admin/students', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, is_active: !cur }),
     });
-    setStudents(prev => prev.map(s => s.id === id ? { ...s, is_active: !cur } : s));
+    await onRefresh();
   };
 
   const handleDelete = async () => {
@@ -548,8 +537,8 @@ function TabStudents() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: deleteId }),
     });
-    setStudents(prev => prev.filter(s => s.id !== deleteId));
     setDeleteId(null);
+    await onRefresh();
   };
 
   const handleSave = async (form: StudentFormData) => {
@@ -568,7 +557,7 @@ function TabStudents() {
         setSaving(false);
         return;
       }
-      await fetchStudents();
+      await onRefresh();
       setModal(null);
     } catch (e: unknown) {
       alert(e instanceof Error ? e.message : '저장 실패');
@@ -594,7 +583,7 @@ function TabStudents() {
       });
       updated++;
     }
-    await fetchStudents();
+    await onRefresh();
     setBulkResult(`${updated}명 업데이트 완료 (${lines.length}건 중)`);
   };
 
@@ -699,7 +688,7 @@ function TabStudents() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {loading ? (
+            {students.length === 0 ? (
               <tr><td colSpan={8} className="text-center py-10 text-gray-400">로딩 중...</td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="text-center py-10 text-gray-400">검색 결과 없음</td></tr>
@@ -717,7 +706,7 @@ function TabStudents() {
                   {s.pin_code ? (
                     <div className="flex items-center gap-1">
                       <span className="font-mono text-xs text-gray-500">{s.pin_code}</span>
-                      <button onClick={async (e) => { e.stopPropagation(); await fetch('/api/admin/students', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, pin_code: '' }) }); fetchStudents(); }}
+                      <button onClick={async (e) => { e.stopPropagation(); await fetch('/api/admin/students', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, pin_code: '' }) }); onRefresh(); }}
                         className="text-red-400 hover:text-red-600 text-[10px]" title="PIN 초기화">↺</button>
                     </div>
                   ) : <span className="text-gray-300 text-xs">미설정</span>}
@@ -781,6 +770,8 @@ function TabNotifications({ students }: { students: Student[] }) {
   const [loading,     setLoading]     = useState(true);
   const [sending,     setSending]     = useState(false);
   const [sendResults, setSendResults] = useState<Map<string, boolean>>(new Map());
+  const [ntSearch,    setNtSearch]    = useState('');
+  const [ntSchool,    setNtSchool]    = useState('');
 
   useEffect(() => {
     fetchActiveRecords().then(data => { setRecords(data); setLoading(false); });
@@ -788,6 +779,12 @@ function TabNotifications({ students }: { students: Student[] }) {
 
   const elapsed = elapsedDays();
   const days7   = last7Days();
+
+  const filteredStudents = useMemo(() =>
+    students.filter(s =>
+      (!ntSearch || s.name.includes(ntSearch)) &&
+      (!ntSchool || s.school === ntSchool)
+    ), [students, ntSearch, ntSchool]);
 
   // Pre-compute all rankings once
   const rankings = useMemo(() => {
@@ -872,11 +869,11 @@ function TabNotifications({ students }: { students: Student[] }) {
   };
 
   const toggleAll = () => {
-    if (selected.size === students.length) {
+    if (selected.size === filteredStudents.length) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(students.map(s => s.id)));
-      setPreviewId(students[0]?.id ?? null);
+      setSelected(new Set(filteredStudents.map(s => s.id)));
+      setPreviewId(filteredStudents[0]?.id ?? null);
     }
   };
 
@@ -900,17 +897,28 @@ function TabNotifications({ students }: { students: Student[] }) {
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">학생 선택</h3>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{selected.size}명 선택</span>
+            <span className="text-sm text-gray-500">{selected.size}명 선택 / {filteredStudents.length}명</span>
             <button onClick={toggleAll} className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-              {selected.size === students.length ? '전체 해제' : '전체 선택'}
+              {selected.size === filteredStudents.length ? '전체 해제' : '전체 선택'}
             </button>
           </div>
+        </div>
+
+        {/* 검색 + 학교 필터 */}
+        <div className="flex gap-2">
+          <input type="text" value={ntSearch} onChange={e => setNtSearch(e.target.value)} placeholder="이름 검색"
+            className="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <select value={ntSchool} onChange={e => setNtSchool(e.target.value)}
+            className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">전체</option>
+            {SCHOOLS.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
 
         <div className="border border-gray-200 rounded-xl overflow-hidden max-h-[400px] overflow-y-auto">
           {loading ? (
             <div className="text-center py-8 text-gray-400 text-sm">로딩 중...</div>
-          ) : students.map(s => {
+          ) : filteredStudents.map(s => {
             const tier = loading ? null : getTier(Math.round(records.filter(r => r.student_id === s.id).reduce((a, r) => a + r.total_hours, 0) / elapsed * 10) / 10);
             const sent = sendResults.get(s.id);
             return (
@@ -1556,8 +1564,14 @@ export default function AdminPage() {
   const [email,    setEmail]    = useState('');
   const [unverifiedCount, setUnverifiedCount] = useState(0);
 
+  const refreshStudents = useCallback(async () => {
+    const res = await fetch('/api/data/students-all');
+    const data = await res.json();
+    setStudents(Array.isArray(data) ? data : []);
+  }, []);
+
   useEffect(() => {
-    fetch('/api/data/students').then(r => r.json()).then(data => setStudents(Array.isArray(data) ? data : []));
+    refreshStudents();
     fetch('/api/admin/verify-record').then(r => r.json()).then(data => {
       if (Array.isArray(data)) setUnverifiedCount(data.filter((r: { verified: boolean }) => !r.verified).length);
     });
@@ -1632,7 +1646,7 @@ export default function AdminPage() {
       {/* 탭 콘텐츠 */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {tab === 'entry'         && <TabManualEntry   students={students} />}
-        {tab === 'students'      && <TabStudents />}
+        {tab === 'students'      && <TabStudents students={students} onRefresh={refreshStudents} />}
         {tab === 'records'       && <TabRecords       students={students} />}
         {tab === 'notifications' && <TabNotifications students={activeStudents} />}
         {tab === 'stats'         && <TabStats         students={activeStudents} />}
