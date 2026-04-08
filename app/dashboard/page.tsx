@@ -245,14 +245,16 @@ export default function Dashboard() {
         }}
       >
         {/* Mobile header — 1줄 */}
-        <div className="md:hidden flex items-center justify-between whitespace-nowrap">
-          <h1 className="text-[16px] font-black tracking-tight" style={{ textShadow: '0 0 12px rgba(96,165,250,0.8)' }}>
-            매플 순공리그 <span className="text-[10px] font-bold text-blue-500 tracking-widest">{SEASON_NAME}</span>
-          </h1>
-          <div className="flex items-center gap-2 text-[11px] font-bold tabular-nums" style={{ color: '#60A5FA' }}>
-            <span>D{elapsed}</span>
-            <span>{seasonProgress}%</span>
-            <span>{participantCount}명</span>
+        <div className="md:hidden flex items-center justify-between whitespace-nowrap overflow-hidden">
+          <span className="font-black shrink-0" style={{ fontSize: '14px', textShadow: '0 0 12px rgba(96,165,250,0.8)' }}>
+            매플 순공리그
+          </span>
+          <div className="flex items-center gap-1.5 shrink-0" style={{ fontSize: '12px', color: '#60A5FA' }}>
+            <span className="font-bold tabular-nums">D{elapsed}</span>
+            <span className="text-gray-600">|</span>
+            <span className="font-bold tabular-nums">{seasonProgress}%</span>
+            <span className="text-gray-600">|</span>
+            <span className="font-bold tabular-nums">{participantCount}명</span>
           </div>
         </div>
 
@@ -292,13 +294,12 @@ export default function Dashboard() {
 
       {/* ── Column headers ── */}
       <div className="flex-shrink-0 px-3 md:px-8 py-1 md:py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        {/* Mobile — 4열 */}
-        <div className="grid md:hidden font-bold uppercase tracking-wider text-gray-600"
-          style={{ gridTemplateColumns: '2rem 1fr 3rem 4.5rem', fontSize: '10px' }}>
-          <span className="text-center">#</span>
-          <span className="pl-1">이름</span>
-          <span className="text-right">누적</span>
-          <span className="text-center">티어</span>
+        {/* Mobile — 4열 고정폭 */}
+        <div className="md:hidden flex items-center text-gray-600 font-bold uppercase" style={{ fontSize: '10px' }}>
+          <span className="text-center" style={{ width: '36px' }}>#</span>
+          <span className="pl-1 flex-1">이름</span>
+          <span className="text-right" style={{ width: '50px' }}>누적</span>
+          <span className="text-center" style={{ width: '65px' }}>티어</span>
         </div>
         {/* Desktop */}
         <div className="hidden md:grid text-xs font-bold uppercase tracking-widest text-gray-600"
@@ -329,16 +330,20 @@ export default function Dashboard() {
 
           return (
             <div key={row.student_id} style={{ flex: '1 1 0', minHeight: 0 }}>
-              {/* Mobile row — 4열: 순위 | 이름 | 누적 | 티어 */}
-              <div className="md:hidden grid items-center rounded-lg px-2 h-full"
-                style={{ gridTemplateColumns: '2rem 1fr 3rem 4.5rem', fontSize: '13px', background: rowBg, border: rowBorder }}>
-                <div className="flex justify-center">
-                  {isTop3 ? <span className="text-sm" style={{ filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
+              {/* Mobile row — flex 고정폭, 겹침 방지 */}
+              <div className="md:hidden flex items-center rounded-lg px-1 h-full overflow-hidden"
+                style={{ fontSize: '13px', background: rowBg, border: rowBorder }}>
+                <div className="shrink-0 flex justify-center items-center" style={{ width: '36px' }}>
+                  {isTop3 ? <span style={{ fontSize: '16px', filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
                     : <span className="font-bold tabular-nums" style={{ color: '#6B7280', fontSize: '12px' }}>{row.rank}</span>}
                 </div>
-                <span className="font-bold leading-none pl-1" style={{ color: isTop3 ? '#FFF' : '#D1D5DB', minWidth: '60px' }}>{row.name}</span>
-                <span className="text-right font-semibold text-gray-300 tabular-nums">{row.total}</span>
-                <div className="flex justify-center">
+                <div className="flex-1 min-w-0 pl-1">
+                  <span className="block font-bold truncate" style={{ color: isTop3 ? '#FFF' : '#D1D5DB' }}>{row.name}</span>
+                </div>
+                <div className="shrink-0 text-right tabular-nums font-semibold text-gray-300" style={{ width: '50px' }}>
+                  {row.total}
+                </div>
+                <div className="shrink-0 flex justify-center" style={{ width: '65px' }}>
                   <span className="font-black whitespace-nowrap" style={{ color: tier.color, fontSize: '10px' }}>{tier.emoji}{tier.name.slice(0,4)}</span>
                 </div>
               </div>
