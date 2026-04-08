@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // GET — fetch single record by student_id + record_date
 export async function GET(request: NextRequest) {
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest) {
     .eq('record_date', record_date)
     .maybeSingle();
 
-  return Response.json(data);
+  return Response.json(data, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
 }
 
 // POST — upsert daily record (manual entry)

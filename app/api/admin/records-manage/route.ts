@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // PATCH — update record
 export async function PATCH(request: NextRequest) {

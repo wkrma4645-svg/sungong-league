@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const SEASON_END = '2026-06-30';
 

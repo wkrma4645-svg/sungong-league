@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 // GET — 특정 학생+날짜의 기록 존재 여부
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
   const student_id = searchParams.get('student_id');
   const record_date = searchParams.get('record_date');
 
-  if (!student_id || !record_date) return Response.json({ exists: false });
+  if (!student_id || !record_date) return Response.json({ exists: false }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
 
   const supabase = createServiceClient();
   const { data } = await supabase
@@ -23,5 +24,5 @@ export async function GET(request: NextRequest) {
   return Response.json({
     exists: !!data,
     total_hours: data?.total_hours ?? 0,
-  });
+  }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
 }

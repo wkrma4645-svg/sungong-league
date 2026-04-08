@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // GET — 미확인 수동기록 목록
 export async function GET() {
@@ -13,7 +15,7 @@ export async function GET() {
     .order('record_date', { ascending: false });
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? []);
+  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
 }
 
 // PATCH — 확인완료 처리

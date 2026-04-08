@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
+export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 // GET /api/data/records
@@ -12,5 +13,5 @@ export async function GET() {
     .select('id, student_id, record_date, math_hours, english_hours, korean_hours, science_hours, social_hours, etc_hours, total_hours, input_method, verified');
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
+  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
 }
