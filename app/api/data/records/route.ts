@@ -12,5 +12,5 @@ export async function GET() {
     .select('id, student_id, record_date, math_hours, english_hours, korean_hours, science_hours, social_hours, etc_hours, total_hours, input_method, verified');
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? []);
+  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 }

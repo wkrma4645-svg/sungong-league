@@ -92,8 +92,8 @@ export default function Dashboard() {
   // ── Build leaderboard ──────────────────────────────────────────────────────
   const buildRows = useCallback(async () => {
     const [studentsRaw, recordsRaw] = await Promise.all([
-      fetch('/api/data/students').then(r => r.json()),
-      fetch('/api/data/records').then(r => r.json()),
+      fetch('/api/data/students', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/data/records', { cache: 'no-store' }).then(r => r.json()),
     ]);
     const students = Array.isArray(studentsRaw) ? studentsRaw : [];
     const records  = Array.isArray(recordsRaw)  ? recordsRaw  : [];

@@ -76,7 +76,7 @@ const last7Days = (): string[] => {
 };
 
 async function fetchActiveRecords(): Promise<DailyRecord[]> {
-  const res = await fetch('/api/data/records');
+  const res = await fetch('/api/data/records', { cache: 'no-store' });
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];
@@ -1565,7 +1565,7 @@ export default function AdminPage() {
   const [unverifiedCount, setUnverifiedCount] = useState(0);
 
   const refreshStudents = useCallback(async () => {
-    const res = await fetch('/api/data/students-all');
+    const res = await fetch('/api/data/students-all', { cache: 'no-store' });
     const data = await res.json();
     setStudents(Array.isArray(data) ? data : []);
   }, []);

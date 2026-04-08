@@ -12,5 +12,5 @@ export async function GET() {
     .order('school')
     .order('name');
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? []);
+  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 }

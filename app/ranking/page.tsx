@@ -39,8 +39,8 @@ export default function RankingPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/data/students').then(r => r.json()),
-      fetch('/api/data/records').then(r => r.json()),
+      fetch('/api/data/students', { cache: 'no-store' }).then(r => r.json()),
+      fetch('/api/data/records', { cache: 'no-store' }).then(r => r.json()),
     ]).then(([studs, recs]) => {
       setStudents(Array.isArray(studs) ? studs : []);
       setRecords(Array.isArray(recs) ? recs : []);

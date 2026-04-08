@@ -10,5 +10,5 @@ export async function GET() {
     .select('id, name, start_date, end_date, data_start_date')
     .eq('is_active', true)
     .single();
-  return Response.json(data);
+  return Response.json(data, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
 }
