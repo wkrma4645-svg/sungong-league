@@ -237,70 +237,67 @@ export default function Dashboard() {
 
       {/* ── Header ── */}
       <header
-        className="flex-shrink-0 px-3 md:px-8 py-2 md:py-4 flex flex-wrap md:flex-nowrap items-center justify-between gap-2"
+        className="flex-shrink-0 px-3 md:px-8 py-2 md:py-4"
         style={{
           background: 'linear-gradient(180deg, rgba(30,40,80,0.4) 0%, transparent 100%)',
           borderBottom: '1px solid rgba(59,130,246,0.15)',
           animation: flash ? 'flashIn 0.6s ease' : 'none',
         }}
       >
-        {/* Title */}
-        <div className="flex items-center gap-2 md:gap-4">
-          <div className="hidden md:flex flex-col gap-0.5">
-            <div className="w-1.5 h-5 rounded-full bg-blue-400" style={{ boxShadow: '0 0 10px #60A5FA' }} />
-            <div className="w-1.5 h-5 rounded-full bg-blue-600" style={{ boxShadow: '0 0 10px #2563EB' }} />
-          </div>
-          <div>
-            <h1
-              className="text-base md:text-2xl font-black tracking-[0.1em] md:tracking-[0.2em] leading-tight whitespace-nowrap"
-              style={{ textShadow: '0 0 20px rgba(96,165,250,0.8)' }}
-            >
-              매플 순공리그
-            </h1>
-            <p className="text-[9px] md:text-xs font-bold tracking-[0.3em] md:tracking-[0.5em] text-blue-500">{SEASON_NAME}</p>
+        {/* Mobile header — 1줄 */}
+        <div className="md:hidden flex items-center justify-between whitespace-nowrap">
+          <h1 className="text-[16px] font-black tracking-tight" style={{ textShadow: '0 0 12px rgba(96,165,250,0.8)' }}>
+            매플 순공리그 <span className="text-[10px] font-bold text-blue-500 tracking-widest">{SEASON_NAME}</span>
+          </h1>
+          <div className="flex items-center gap-2 text-[11px] font-bold tabular-nums" style={{ color: '#60A5FA' }}>
+            <span>D{elapsed}</span>
+            <span>{seasonProgress}%</span>
+            <span>{participantCount}명</span>
           </div>
         </div>
 
-        {/* Stats — 모바일 2줄 */}
-        <div className="flex items-center gap-3 md:gap-8 flex-wrap justify-end">
-          <Stat value={`Day ${elapsed}`} label="경과일" accent />
-          <span className="hidden md:block"><Divider /></span>
-          <Stat value={`${seasonProgress}%`} label="시즌진행률" accent />
-          <span className="hidden md:block"><Divider /></span>
-          <Stat value={`${participantCount}명`} label="참가인원" accent />
-          <span className="hidden md:block"><Divider /></span>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1">
-              <p className="text-sm md:text-xl font-black leading-tight tabular-nums font-mono"
-                style={{ color: '#60A5FA', textShadow: '0 0 12px rgba(96,165,250,0.6)' }}>
-                {clock}
-              </p>
-              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse flex-shrink-0" style={{ boxShadow: '0 0 6px #22C55E' }} />
+        {/* Desktop header */}
+        <div className="hidden md:flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-0.5">
+              <div className="w-1.5 h-5 rounded-full bg-blue-400" style={{ boxShadow: '0 0 10px #60A5FA' }} />
+              <div className="w-1.5 h-5 rounded-full bg-blue-600" style={{ boxShadow: '0 0 10px #2563EB' }} />
             </div>
-            <p className="text-[8px] md:text-[10px] uppercase tracking-widest text-gray-600">현재시각</p>
+            <div>
+              <h1 className="text-2xl font-black tracking-[0.2em] leading-tight" style={{ textShadow: '0 0 20px rgba(96,165,250,0.8)' }}>매플 순공리그</h1>
+              <p className="text-xs font-bold tracking-[0.5em] text-blue-500 mt-0.5">{SEASON_NAME}</p>
+            </div>
           </div>
-        </div>
-
-        {/* Controls */}
-        <div className="hidden md:flex items-center gap-3">
-          <Link href="/" className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors">
-            🏠 홈
-          </Link>
-          <button onClick={toggleFullscreen} className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs transition-colors">
-            ⛶ 전체화면
-          </button>
+          <div className="flex items-center gap-8">
+            <Stat value={`Day ${elapsed}`} label="경과일" accent />
+            <Divider />
+            <Stat value={`${seasonProgress}%`} label="시즌진행률" accent />
+            <Divider />
+            <Stat value={`${participantCount}명`} label="참가인원" accent />
+            <Divider />
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-xl font-black leading-tight tabular-nums font-mono" style={{ color: '#60A5FA', textShadow: '0 0 12px rgba(96,165,250,0.6)' }}>{clock}</p>
+                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" style={{ boxShadow: '0 0 6px #22C55E' }} />
+              </div>
+              <p className="text-[10px] uppercase tracking-widest text-gray-600 mt-0.5">현재시각</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/" className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs">🏠 홈</Link>
+            <button onClick={toggleFullscreen} className="px-3 py-1.5 rounded-md border border-gray-800 text-gray-500 hover:text-gray-300 hover:border-gray-600 text-xs">⛶ 전체화면</button>
+          </div>
         </div>
       </header>
 
       {/* ── Column headers ── */}
-      <div className="flex-shrink-0 px-3 md:px-8 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        {/* Mobile */}
-        <div className="grid md:hidden text-[10px] font-bold uppercase tracking-wider text-gray-600"
-          style={{ gridTemplateColumns: '2.2rem 1fr 3.5rem 3.5rem 5.5rem' }}>
+      <div className="flex-shrink-0 px-3 md:px-8 py-1 md:py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        {/* Mobile — 4열 */}
+        <div className="grid md:hidden font-bold uppercase tracking-wider text-gray-600"
+          style={{ gridTemplateColumns: '2rem 1fr 3rem 4.5rem', fontSize: '10px' }}>
           <span className="text-center">#</span>
           <span className="pl-1">이름</span>
           <span className="text-right">누적</span>
-          <span className="text-right">일평균</span>
           <span className="text-center">티어</span>
         </div>
         {/* Desktop */}
@@ -332,18 +329,17 @@ export default function Dashboard() {
 
           return (
             <div key={row.student_id} style={{ flex: '1 1 0', minHeight: 0 }}>
-              {/* Mobile row */}
+              {/* Mobile row — 4열: 순위 | 이름 | 누적 | 티어 */}
               <div className="md:hidden grid items-center rounded-lg px-2 h-full"
-                style={{ gridTemplateColumns: '2.2rem 1fr 3.5rem 3.5rem 5.5rem', background: rowBg, border: rowBorder }}>
+                style={{ gridTemplateColumns: '2rem 1fr 3rem 4.5rem', fontSize: '13px', background: rowBg, border: rowBorder }}>
                 <div className="flex justify-center">
-                  {isTop3 ? <span className="text-base" style={{ filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
-                    : <span className="text-xs font-bold tabular-nums" style={{ color: '#6B7280' }}>{row.rank}</span>}
+                  {isTop3 ? <span className="text-sm" style={{ filter: `drop-shadow(0 0 4px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
+                    : <span className="font-bold tabular-nums" style={{ color: '#6B7280', fontSize: '12px' }}>{row.rank}</span>}
                 </div>
-                <span className="font-bold text-xs leading-none truncate pl-1" style={{ color: isTop3 ? '#FFF' : '#D1D5DB' }}>{row.name}</span>
-                <span className="text-right font-semibold text-gray-300 tabular-nums text-xs">{row.total}</span>
-                <span className="text-right font-black tabular-nums text-xs" style={{ color: tier.color }}>{row.daily_avg}</span>
+                <span className="font-bold leading-none pl-1" style={{ color: isTop3 ? '#FFF' : '#D1D5DB', minWidth: '60px' }}>{row.name}</span>
+                <span className="text-right font-semibold text-gray-300 tabular-nums">{row.total}</span>
                 <div className="flex justify-center">
-                  <span className="text-[9px] font-black whitespace-nowrap" style={{ color: tier.color }}>{tier.emoji}{tier.name.slice(0, 3)}</span>
+                  <span className="font-black whitespace-nowrap" style={{ color: tier.color, fontSize: '10px' }}>{tier.emoji}{tier.name.slice(0,4)}</span>
                 </div>
               </div>
 
@@ -405,9 +401,9 @@ export default function Dashboard() {
         <span className="hidden md:block text-[10px] font-bold tracking-[0.4em] text-gray-800 uppercase">
           Maple Study League · Realtime Leaderboard
         </span>
-        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-          {TIERS.slice(0, 5).map(t => (
-            <span key={t.name} className="text-[9px] md:text-[10px] font-bold" style={{ color: t.color, textShadow: `0 0 6px ${t.glow}` }}>
+        <div className="grid grid-cols-3 md:flex md:items-center gap-x-3 gap-y-0.5 md:gap-3">
+          {TIERS.slice(0, 6).map(t => (
+            <span key={t.name} className="text-[9px] md:text-[10px] font-bold whitespace-nowrap" style={{ color: t.color, textShadow: `0 0 6px ${t.glow}` }}>
               {t.emoji}{t.min}h+
             </span>
           ))}
