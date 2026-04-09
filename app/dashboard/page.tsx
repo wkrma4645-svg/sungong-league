@@ -63,6 +63,7 @@ interface PlayerRow {
   name:          string;
   school:        string;
   grade:         string;
+  teacher:       string;
   total_goal:    number;
   total:         number;
   daily_avg:     number;
@@ -124,7 +125,7 @@ export default function Dashboard() {
         const dailyRequired = total_goal > 0
           ? Math.round(Math.max(0, (total_goal - total) / remaining) * 10) / 10
           : 0;
-        return { student_id: s.id, name: s.name, school: s.school, grade: s.grade,
+        return { student_id: s.id, name: s.name, school: s.school, grade: s.grade, teacher: s.teacher ?? '',
           total_goal, total, daily_avg, achievement, seasonProgress, dailyRequired };
       })
       .sort((a, b) => b.total - a.total)
@@ -360,11 +361,12 @@ export default function Dashboard() {
       {/* ── Column headers ── */}
       <div className="flex-shrink-0 px-8 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="grid text-xs font-bold uppercase tracking-widest text-gray-600"
-          style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem' }}>
+          style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 4rem 5rem 5rem 5rem 5rem 12rem 9rem' }}>
           <span className="text-center">순위</span>
           <span className="pl-2">이름</span>
           <span>학교</span>
           <span className="text-center">학년</span>
+          <span>담당</span>
           <span className="text-right pr-2">누적</span>
           <span className="text-right pr-2">총목표</span>
           <span className="text-right pr-2">일평균</span>
@@ -388,7 +390,7 @@ export default function Dashboard() {
           return (
             <div key={row.student_id} style={{ flex: '1 1 0', minHeight: 0 }}>
               <div className="grid items-center rounded-lg px-3 h-full transition-all duration-500"
-                style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 5rem 5rem 5rem 5rem 12rem 9rem', background: rowBg, border: rowBorder,
+                style={{ gridTemplateColumns: '3rem 1.2fr 5rem 3rem 4rem 5rem 5rem 5rem 5rem 12rem 9rem', background: rowBg, border: rowBorder,
                   boxShadow: isTop3 ? `0 0 24px ${mColor}18, inset 0 0 30px ${tier.color}0a` : `inset 0 0 12px ${tier.color}06` }}>
                 <div className="flex justify-center items-center">
                   {isTop3 ? <span className="text-xl font-black" style={{ filter: `drop-shadow(0 0 6px ${mColor})` }}>{MEDAL[row.rank - 1]}</span>
@@ -404,6 +406,7 @@ export default function Dashboard() {
                 </div>
                 <span className="text-sm text-gray-500">{row.school}</span>
                 <span className="text-center text-sm text-gray-600">{row.grade}</span>
+                <span className="text-xs text-gray-600 truncate">{row.teacher}</span>
                 <span className="text-right pr-2 font-semibold text-gray-300 tabular-nums text-sm">{row.total}</span>
                 <span className="text-right pr-2 text-gray-600 tabular-nums text-sm">{row.total_goal > 0 ? row.total_goal : '—'}</span>
                 <span className="text-right pr-2 font-black tabular-nums text-base leading-none" style={{ color: tier.color, textShadow: `0 0 10px ${tier.glow}` }}>{row.daily_avg}</span>

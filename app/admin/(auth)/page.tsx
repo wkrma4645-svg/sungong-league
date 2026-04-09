@@ -13,6 +13,7 @@ type SubjectKey = 'math' | 'english' | 'korean' | 'science' | 'etc';
 interface Student {
   id: string; name: string; school: string; grade: string;
   total_goal: number; parent_phone: string; pin_code: string;
+  teacher: string; class_group: string;
   is_active: boolean; season_id: string; join_date?: string; goal_edit_count?: number;
 }
 
@@ -355,6 +356,8 @@ function StudentModal({
     total_goal:   data.total_goal   ?? 500,
     parent_phone: data.parent_phone ?? '',
     pin_code:     data.pin_code     ?? '',
+    teacher:      data.teacher      ?? '',
+    class_group:  data.class_group  ?? '',
     join_date:    data.join_date    ?? toKST(),
     is_active:    data.is_active    ?? true,
   });
@@ -460,6 +463,18 @@ function StudentModal({
                 onChange={e => set('total_goal', parseFloat(e.target.value) || 0)}
                 className={INPUT}
               />
+            </div>
+          </div>
+
+          {/* 담당선생님 + 분반 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">담당선생님</label>
+              <input value={form.teacher} onChange={e => set('teacher', e.target.value)} placeholder="예: 김재현" className={INPUT} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">분반</label>
+              <input value={form.class_group} onChange={e => set('class_group', e.target.value)} placeholder="예: A반" className={INPUT} />
             </div>
           </div>
 
@@ -667,8 +682,10 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
                 { label: '이름', key: 'name' },
                 { label: '학교', key: 'school' },
                 { label: '학년', key: 'grade' },
+                { label: '담당', key: 'teacher' },
+                { label: '분반', key: 'class_group' },
                 { label: '목표(h)', key: 'total_goal' },
-                { label: '학부모 연락처', key: 'parent_phone' },
+                { label: '연락처', key: 'parent_phone' },
                 { label: 'PIN', key: null },
                 { label: '상태', key: 'is_active' },
                 { label: '관리', key: null },
@@ -689,15 +706,17 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
           </thead>
           <tbody className="divide-y divide-gray-100">
             {students.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">로딩 중...</td></tr>
+              <tr><td colSpan={10} className="text-center py-10 text-gray-400">로딩 중...</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={8} className="text-center py-10 text-gray-400">검색 결과 없음</td></tr>
+              <tr><td colSpan={10} className="text-center py-10 text-gray-400">검색 결과 없음</td></tr>
             ) : filtered.map(s => (
               <tr key={s.id} className={`hover:bg-gray-50 transition-colors ${!s.is_active ? 'opacity-50' : ''}`}>
                 <td className="px-4 py-3 font-medium text-blue-600 cursor-pointer hover:underline"
                   onClick={() => setModal({ mode: 'edit', data: s })}>{s.name}</td>
                 <td className="px-4 py-3 text-gray-600">{s.school}</td>
                 <td className="px-4 py-3 text-gray-600">{s.grade}</td>
+                <td className="px-4 py-3 text-gray-600 text-xs">{s.teacher || '-'}</td>
+                <td className="px-4 py-3 text-gray-600 text-xs">{s.class_group || '-'}</td>
                 <td className="px-4 py-3 text-gray-600">{s.total_goal}h</td>
                 <td className="px-4 py-3">
                   {s.parent_phone ? <span className="text-gray-600">{s.parent_phone}</span> : <span className="text-red-400 text-xs">미등록</span>}

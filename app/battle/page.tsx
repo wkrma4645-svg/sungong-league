@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 // ─── Types / Constants ────────────────────────────────────────────────────────
 
-interface Student { id: string; name: string; school: string; grade: string; is_active: boolean; }
+interface Student { id: string; name: string; school: string; grade: string; teacher: string; class_group: string; is_active: boolean; }
 interface DailyRecord { student_id: string; total_hours: number; }
 
 const SCHOOLS = ['오천고', '동성고', '영일고', '포은중', '신흥중', '동해중'];
@@ -132,7 +132,7 @@ export default function BattlePage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [records,  setRecords]  = useState<DailyRecord[]>([]);
   const [loading,  setLoading]  = useState(true);
-  const [tab,      setTab]      = useState<'school' | 'grade'>('school');
+  const [tab,      setTab]      = useState<'school' | 'grade' | 'teacher' | 'class'>('school');
 
   useEffect(() => {
     Promise.all([
@@ -183,7 +183,25 @@ export default function BattlePage() {
     );
   }, [studentAvgs, globalAvg]);
 
-  const ranking    = tab === 'school' ? schoolRanking : gradeRanking;
+  // 선생님별 베이지안
+  const teacherRanking = useMemo(() => {
+    const teachers = Array.from(new Set(studentAvgs.map(s => s.teacher).filter(Boolean))).sort();
+    return calcBayesian(
+      teachers.map(t => ({ label: t, avgs: studentAvgs.filter(s => s.teacher === t).map(s => s.dailyAvg) })),
+      globalAvg,
+    );
+  }, [studentAvgs, globalAvg]);
+
+  // 분반별 베이지안
+  const classRanking = useMemo(() => {
+    const classes = Array.from(new Set(studentAvgs.map(s => s.class_group).filter(Boolean))).sort();
+    return calcBayesian(
+      classes.map(c => ({ label: c, avgs: studentAvgs.filter(s => s.class_group === c).map(s => s.dailyAvg) })),
+      globalAvg,
+    );
+  }, [studentAvgs, globalAvg]);
+
+  const ranking = tab === 'school' ? schoolRanking : tab === 'grade' ? gradeRanking : tab === 'teacher' ? teacherRanking : classRanking;
   const maxScore   = ranking[0]?.score ?? 1;
 
   return (
@@ -201,7 +219,7 @@ export default function BattlePage() {
 
       {/* ── 탭 ── */}
       <div className="px-3 sm:px-6 pt-5 pb-1 flex gap-2">
-        {([['school', '🏫 학교별'], ['grade', '🎓 학년별']] as const).map(([key, label]) => (
+        {([['school', '🏫 학교별'], ['grade', '🎓 학년별'], ['teacher', '👨‍🏫 선생님별'], ['class', '📚 분반별']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -244,7 +262,7 @@ export default function BattlePage() {
             <div className="grid text-xs font-bold uppercase tracking-wider text-gray-700 px-5 py-2 mb-1"
               style={{ gridTemplateColumns: '3rem 5rem 1fr 9rem' }}>
               <span className="text-center">순위</span>
-              <span>{tab === 'school' ? '학교' : '학년'}</span>
+              <span>{{ school: '학교', grade: '학년', teacher: '선생님', class: '분반' }[tab]}</span>
               <span className="pl-2 hidden sm:block">분포</span>
               <span className="text-right">보정점수 / 단순평균</span>
             </div>
