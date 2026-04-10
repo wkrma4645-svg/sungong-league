@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,20 +18,16 @@ export async function POST(request: NextRequest) {
       .eq('is_active', true)
       .single();
 
-    const insertPayload = { ...body, season_id: season?.id ?? null };
-    console.log('[POST /api/admin/students] inserting:', JSON.stringify(insertPayload));
-
     const { data, error } = await supabase
       .from('students')
-      .insert(insertPayload)
+      .insert({ ...body, season_id: season?.id ?? null })
       .select()
       .single();
 
-    console.log('[POST /api/admin/students] result:', { data: data?.id, error: error?.message });
-    if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ success: true, student: data });
+    if (error) return noCacheJson({ error: error.message }, { status: 500 });
+    return noCacheJson({ success: true, student: data });
   } catch (e: unknown) {
-    return Response.json({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
   }
 }
 
@@ -38,15 +35,15 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const { id, ...rest } = await request.json();
-    if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+    if (!id) return noCacheJson({ error: 'id required' }, { status: 400 });
 
     const supabase = createServiceClient();
     const { error } = await supabase.from('students').update(rest).eq('id', id);
 
-    if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ success: true });
+    if (error) return noCacheJson({ error: error.message }, { status: 500 });
+    return noCacheJson({ success: true });
   } catch (e: unknown) {
-    return Response.json({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
   }
 }
 
@@ -54,16 +51,14 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+    if (!id) return noCacheJson({ error: 'id required' }, { status: 400 });
 
     const supabase = createServiceClient();
-    console.log('[DELETE /api/admin/students] deleting id:', id);
-    const { error, count } = await supabase.from('students').delete().eq('id', id);
-    console.log('[DELETE /api/admin/students] result:', { error: error?.message, count });
+    const { error } = await supabase.from('students').delete().eq('id', id);
 
-    if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ success: true });
+    if (error) return noCacheJson({ error: error.message }, { status: 500 });
+    return noCacheJson({ success: true });
   } catch (e: unknown) {
-    return Response.json({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
   }
 }

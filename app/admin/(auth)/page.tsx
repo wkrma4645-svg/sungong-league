@@ -136,7 +136,7 @@ function TabManualEntry({ students }: { students: Student[] }) {
   const [verifying, setVerifying] = useState<string | null>(null);
 
   const fetchManualRecords = useCallback(() => {
-    fetch('/api/admin/verify-record').then(r => r.json())
+    fetch('/api/admin/verify-record', { cache: 'no-store' }).then(r => r.json())
       .then(data => setManualRecords(Array.isArray(data) ? data : []));
   }, []);
 
@@ -144,8 +144,7 @@ function TabManualEntry({ students }: { students: Student[] }) {
 
   const handleVerify = async (id: string) => {
     setVerifying(id);
-    await fetch('/api/admin/verify-record', {
-      method: 'PATCH',
+    await fetch('/api/admin/verify-record', { cache: 'no-store', method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
@@ -176,8 +175,7 @@ function TabManualEntry({ students }: { students: Student[] }) {
     if (!studentId) { setMsg({ ok: false, text: '학생을 선택해주세요.' }); return; }
     setSaving(true); setMsg(null);
     const total_hours = Math.round(Object.values(hours).reduce((a, b) => a + b, 0) * 10) / 10;
-    const res = await fetch('/api/admin/records', {
-      method: 'POST',
+    const res = await fetch('/api/admin/records', { cache: 'no-store', method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         student_id: studentId, record_date: date,
@@ -537,8 +535,7 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
   const [sortDir,      setSortDir]      = useState<'asc' | 'desc'>('asc');
 
   const toggleActive = async (id: string, cur: boolean) => {
-    await fetch('/api/admin/students', {
-      method: 'PATCH',
+    await fetch('/api/admin/students', { cache: 'no-store', method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, is_active: !cur }),
     });
@@ -547,8 +544,7 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
 
   const handleDelete = async () => {
     if (!deleteId) return;
-    await fetch('/api/admin/students', {
-      method: 'DELETE',
+    await fetch('/api/admin/students', { cache: 'no-store', method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: deleteId }),
     });
@@ -561,8 +557,7 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _id, ...insertData } = form;
-      const res = await fetch('/api/admin/students', {
-        method: modal?.mode === 'add' ? 'POST' : 'PATCH',
+      const res = await fetch('/api/admin/students', { cache: 'no-store', method: modal?.mode === 'add' ? 'POST' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(modal?.mode === 'add' ? insertData : form),
       });
@@ -591,8 +586,7 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
       const student = students.find(s => s.name === name);
       if (!student) continue;
       const normalized = phone.replace(/[^0-9]/g, '').replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3');
-      await fetch('/api/admin/students', {
-        method: 'PATCH',
+      await fetch('/api/admin/students', { cache: 'no-store', method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: student.id, parent_phone: normalized }),
       });
@@ -725,7 +719,7 @@ function TabStudents({ students, onRefresh }: { students: Student[]; onRefresh: 
                   {s.pin_code ? (
                     <div className="flex items-center gap-1">
                       <span className="font-mono text-xs text-gray-500">{s.pin_code}</span>
-                      <button onClick={async (e) => { e.stopPropagation(); await fetch('/api/admin/students', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, pin_code: '' }) }); onRefresh(); }}
+                      <button onClick={async (e) => { e.stopPropagation(); await fetch('/api/admin/students', { cache: 'no-store', method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: s.id, pin_code: '' }) }); onRefresh(); }}
                         className="text-red-400 hover:text-red-600 text-[10px]" title="PIN 초기화">↺</button>
                     </div>
                   ) : <span className="text-gray-300 text-xs">미설정</span>}
@@ -1146,8 +1140,7 @@ function TabRecords({ students }: { students: Student[] }) {
     if (!editRecord?.id) { alert('기록 ID가 없습니다'); return; }
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/records-manage', {
-        method: 'PATCH',
+      const res = await fetch('/api/admin/records-manage', { cache: 'no-store', method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: editRecord.id,
@@ -1168,8 +1161,7 @@ function TabRecords({ students }: { students: Student[] }) {
   const handleDeleteRecord = async () => {
     if (!editRecord?.id) return;
     if (!confirm('이 기록을 삭제하시겠습니까?')) return;
-    const res = await fetch('/api/admin/records-manage', {
-      method: 'DELETE',
+    const res = await fetch('/api/admin/records-manage', { cache: 'no-store', method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: editRecord.id }),
     });
@@ -1180,8 +1172,7 @@ function TabRecords({ students }: { students: Student[] }) {
   };
 
   const handleVerify = async (id: string) => {
-    await fetch('/api/admin/verify-record', {
-      method: 'PATCH',
+    await fetch('/api/admin/verify-record', { cache: 'no-store', method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
@@ -1591,7 +1582,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     refreshStudents();
-    fetch('/api/admin/verify-record').then(r => r.json()).then(data => {
+    fetch('/api/admin/verify-record', { cache: 'no-store' }).then(r => r.json()).then(data => {
       if (Array.isArray(data)) setUnverifiedCount(data.filter((r: { verified: boolean }) => !r.verified).length);
     });
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ''));

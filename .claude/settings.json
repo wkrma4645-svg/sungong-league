@@ -24,7 +24,15 @@
       "Bash(sed -i \"s|fetch\\('/api/data/students'\\)|fetch\\('/api/data/students', { cache: 'no-store' }\\)|g\" app/battle/page.tsx app/dashboard/page.tsx app/ranking/page.tsx)",
       "Bash(sed -i \"s|fetch\\('/api/data/records'\\)|fetch\\('/api/data/records', { cache: 'no-store' }\\)|g\" app/battle/page.tsx app/dashboard/page.tsx app/ranking/page.tsx)",
       "Bash(sed -i \"s|fetch\\('/api/data/students-all'\\)|fetch\\('/api/data/students-all', { cache: 'no-store' }\\)|g\" app/admin/\\\\\\(auth\\\\\\)/page.tsx)",
-      "Bash(sed -i \"s|fetch\\('/api/data/records'\\)|fetch\\('/api/data/records', { cache: 'no-store' }\\)|g\" app/admin/\\\\\\(auth\\\\\\)/page.tsx)"
+      "Bash(sed -i \"s|fetch\\('/api/data/records'\\)|fetch\\('/api/data/records', { cache: 'no-store' }\\)|g\" app/admin/\\\\\\(auth\\\\\\)/page.tsx)",
+      "Bash(sed -i \"s|import { createServiceClient } from '@/lib/supabase/service';|import { createServiceClient } from '@/lib/supabase/service';\\\\nimport { noCacheJson } from '@/lib/no-cache';|\" app/api/records/submit/route.ts)",
+      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/records/submit/route.ts)",
+      "Bash(sed -i \"2i import { noCacheJson } from '@/lib/no-cache';\" app/api/records/upload-screenshot/route.ts)",
+      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/records/upload-screenshot/route.ts)",
+      "Bash(sed -i \"2i import { noCacheJson } from '@/lib/no-cache';\" app/api/students/auth/route.ts)",
+      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/students/auth/route.ts)",
+      "Bash(sed -i \"2i import { noCacheJson } from '@/lib/no-cache';\" app/api/students/update-goal/route.ts)",
+      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/students/update-goal/route.ts)"
     ]
   }
 }

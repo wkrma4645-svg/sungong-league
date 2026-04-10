@@ -1,10 +1,10 @@
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
-// Returns ALL students including deactivated ones (for admin management tab)
 export async function GET() {
   const supabase = createServiceClient();
   const { data, error } = await supabase
@@ -12,6 +12,6 @@ export async function GET() {
     .select('*')
     .order('school')
     .order('name');
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
+  if (error) return noCacheJson({ error: error.message }, { status: 500 });
+  return noCacheJson(data ?? []);
 }

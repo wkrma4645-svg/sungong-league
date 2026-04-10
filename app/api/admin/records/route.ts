@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
   const record_date = searchParams.get('record_date');
 
   if (!student_id || !record_date) {
-    return Response.json(null);
+    return noCacheJson(null);
   }
 
   const supabase = createServiceClient();
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
     .eq('record_date', record_date)
     .maybeSingle();
 
-  return Response.json(data, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
+  return noCacheJson(data);
 }
 
 // POST — upsert daily record (manual entry)
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const { student_id, record_date, math, english, korean, science, social, etc } = body;
 
     if (!student_id || !record_date) {
-      return Response.json({ error: '학생과 날짜를 선택해주세요.' }, { status: 400 });
+      return noCacheJson({ error: '학생과 날짜를 선택해주세요.' }, { status: 400 });
     }
 
     const math_hours = math ?? 0;
@@ -61,9 +62,9 @@ export async function POST(request: NextRequest) {
       { onConflict: 'student_id,record_date' },
     );
 
-    if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ success: true, total_hours });
+    if (error) return noCacheJson({ error: error.message }, { status: 500 });
+    return noCacheJson({ success: true, total_hours });
   } catch (e: unknown) {
-    return Response.json({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
   }
 }

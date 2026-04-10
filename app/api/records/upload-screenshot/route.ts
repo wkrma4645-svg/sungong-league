@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('image') as File | null;
-    if (!file) return Response.json({ error: '이미지가 없습니다.' }, { status: 400 });
+    if (!file) return noCacheJson({ error: '이미지가 없습니다.' }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64 = buffer.toString('base64');
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // ANTHROPIC_API_KEY 없으면 mock 반환
     if (!process.env.ANTHROPIC_API_KEY) {
-      return Response.json({
+      return noCacheJson({
         math: 2, english: 1.5, korean: 1, science: 0.5, etc: 0,
         total: 5, confidence: 0, mock: true, raw_subjects: [],
       });
@@ -189,7 +190,7 @@ JSON만 응답 (설명 없이):
       conf = Math.min(conf, 0.4);
     }
 
-    return Response.json({
+    return noCacheJson({
       ...totals,
       total,
       confidence: conf,
@@ -197,6 +198,6 @@ JSON만 응답 (설명 없이):
     });
   } catch (e: unknown) {
     console.error(e);
-    return Response.json({ error: e instanceof Error ? e.message : '분석에 실패했습니다.' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : '분석에 실패했습니다.' }, { status: 500 });
   }
 }

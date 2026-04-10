@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       await request.json();
 
     if (!student_id || !record_date) {
-      return Response.json({ error: '학생과 날짜를 선택해주세요.' }, { status: 400 });
+      return noCacheJson({ error: '학생과 날짜를 선택해주세요.' }, { status: 400 });
     }
 
     const math_hours    = math    ?? 0;
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
         .eq('record_date', record_date)
         .maybeSingle();
       if (existing) {
-        return Response.json({ error: '오늘은 이미 기록을 제출했습니다. 수정이 필요하면 선생님께 말씀해주세요.' }, { status: 409 });
+        return noCacheJson({ error: '오늘은 이미 기록을 제출했습니다. 수정이 필요하면 선생님께 말씀해주세요.' }, { status: 409 });
       }
     }
 
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
       ? Math.round(Math.max(0, (total_goal - mySum) / remaining) * 10) / 10
       : 0;
 
-    return Response.json({
+    return noCacheJson({
       success: true,
       total: total_hours,
       accumulated: Math.round(mySum * 10) / 10,
@@ -136,6 +137,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (e: unknown) {
     console.error(e);
-    return Response.json({ error: e instanceof Error ? e.message : '제출에 실패했습니다.' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : '제출에 실패했습니다.' }, { status: 500 });
   }
 }

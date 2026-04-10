@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const revalidate = 0;
@@ -11,5 +12,5 @@ export async function GET() {
     .select('id, name, start_date, end_date, data_start_date')
     .eq('is_active', true)
     .single();
-  return Response.json(data, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
+  return noCacheJson(data);
 }

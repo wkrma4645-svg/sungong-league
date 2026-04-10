@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { noCacheJson } from '@/lib/no-cache';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,15 +15,15 @@ export async function GET() {
     .eq('input_method', 'manual_student')
     .order('record_date', { ascending: false });
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json(data ?? [], { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', 'Vercel-CDN-Cache-Control': 'no-store', 'CDN-Cache-Control': 'no-store' } });
+  if (error) return noCacheJson({ error: error.message }, { status: 500 });
+  return noCacheJson(data ?? []);
 }
 
 // PATCH — 확인완료 처리
 export async function PATCH(request: NextRequest) {
   try {
     const { id } = await request.json();
-    if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+    if (!id) return noCacheJson({ error: 'id required' }, { status: 400 });
 
     const supabase = createServiceClient();
     const { error } = await supabase
@@ -30,9 +31,9 @@ export async function PATCH(request: NextRequest) {
       .update({ verified: true })
       .eq('id', id);
 
-    if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ success: true });
+    if (error) return noCacheJson({ error: error.message }, { status: 500 });
+    return noCacheJson({ success: true });
   } catch (e: unknown) {
-    return Response.json({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
+    return noCacheJson({ error: e instanceof Error ? e.message : 'Failed' }, { status: 500 });
   }
 }

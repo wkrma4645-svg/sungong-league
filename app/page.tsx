@@ -109,8 +109,7 @@ function LoginScreen({ onLogin }: { onLogin: (s: StudentSession) => void }) {
   const handleSearch = async () => {
     if (!name.trim()) return;
     setLoading(true); setError(''); setResults([]); setSelected(null);
-    const res = await fetch('/api/students/auth', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    const res = await fetch('/api/students/auth', { cache: 'no-store', method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'search', name: name.trim() }),
     });
     const data = await res.json();
@@ -132,8 +131,7 @@ function LoginScreen({ onLogin }: { onLogin: (s: StudentSession) => void }) {
 
     if (settingPin) {
       // PIN 설정
-      const res = await fetch('/api/students/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/students/auth', { cache: 'no-store', method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'set_pin', student_id: selected.id, pin }),
       });
       const data = await res.json();
@@ -143,8 +141,7 @@ function LoginScreen({ onLogin }: { onLogin: (s: StudentSession) => void }) {
         total_goal: selected.total_goal, goal_edit_count: selected.goal_edit_count });
     } else {
       // PIN 로그인
-      const res = await fetch('/api/students/auth', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/students/auth', { cache: 'no-store', method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'login', student_id: selected.id, pin }),
       });
       const data = await res.json();
@@ -286,8 +283,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
     if (!val || val <= 0) { setGoalError('올바른 목표를 입력해주세요.'); return; }
     setGoalSaving(true); setGoalError('');
     try {
-      const res = await fetch('/api/students/update-goal', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/students/update-goal', { cache: 'no-store', method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ student_id: session.id, total_goal: val }),
       });
       const data = await res.json();
@@ -310,7 +306,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
     try {
       const fd = new FormData();
       fd.append('image', file);
-      const res = await fetch('/api/records/upload-screenshot', { method: 'POST', body: fd });
+      const res = await fetch('/api/records/upload-screenshot', { cache: 'no-store', method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '분석 실패');
       setHours({ math: data.math ?? 0, english: data.english ?? 0, korean: data.korean ?? 0,
@@ -331,8 +327,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
     if (!hours || !recordInfo.canSubmit) return;
     setSubmitError(''); setSubmitting(true);
     try {
-      const res = await fetch('/api/records/submit', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/api/records/submit', { cache: 'no-store', method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           student_id: session.id, record_date: recordInfo.recordDate, ...hours,
           input_method: manualMode ? 'manual_student' : 'screenshot',
