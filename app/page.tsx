@@ -12,7 +12,7 @@ interface StudentSession {
 }
 
 interface SubjectHours {
-  math: number; english: number; korean: number; science: number; etc: number;
+  math: number; english: number; korean: number; science: number; social: number; etc: number;
 }
 
 interface SubmitResult {
@@ -23,11 +23,12 @@ interface SubmitResult {
 }
 
 const SUBJECTS: { key: keyof SubjectHours; label: string; bar: string; badge: string }[] = [
-  { key: 'math',    label: '수학',      bar: 'bg-blue-500',   badge: 'bg-blue-50 text-blue-700 border-blue-100' },
-  { key: 'english', label: '영어',      bar: 'bg-green-500',  badge: 'bg-green-50 text-green-700 border-green-100' },
-  { key: 'korean',  label: '국어',      bar: 'bg-purple-500', badge: 'bg-purple-50 text-purple-700 border-purple-100' },
-  { key: 'science', label: '과학·사탐', bar: 'bg-orange-500', badge: 'bg-orange-50 text-orange-700 border-orange-100' },
-  { key: 'etc',     label: '기타',      bar: 'bg-gray-400',   badge: 'bg-gray-50 text-gray-600 border-gray-100' },
+  { key: 'math',    label: '수학', bar: 'bg-blue-500',   badge: 'bg-blue-50 text-blue-700 border-blue-100' },
+  { key: 'english', label: '영어', bar: 'bg-green-500',  badge: 'bg-green-50 text-green-700 border-green-100' },
+  { key: 'korean',  label: '국어', bar: 'bg-purple-500', badge: 'bg-purple-50 text-purple-700 border-purple-100' },
+  { key: 'science', label: '과학', bar: 'bg-orange-500', badge: 'bg-orange-50 text-orange-700 border-orange-100' },
+  { key: 'social',  label: '사회', bar: 'bg-rose-500',   badge: 'bg-rose-50 text-rose-700 border-rose-100' },
+  { key: 'etc',     label: '기타', bar: 'bg-gray-400',   badge: 'bg-gray-50 text-gray-600 border-gray-100' },
 ];
 
 // ─── 날짜/시간 헬퍼 ──────────────────────────────────────────────────────────
@@ -238,7 +239,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
   const [manualMode, setManualMode] = useState(false);
   const [manualHours, setManualHours] = useState<Record<string, { h: number; m: number }>>({
     math: { h: 0, m: 0 }, english: { h: 0, m: 0 }, korean: { h: 0, m: 0 },
-    science: { h: 0, m: 0 }, etc: { h: 0, m: 0 },
+    science: { h: 0, m: 0 }, social: { h: 0, m: 0 }, etc: { h: 0, m: 0 },
   });
 
   // 목표 설정
@@ -270,7 +271,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
   }, [session.id, recordInfo.recordDate, recordInfo.canSubmit]);
 
   const applyManualHours = () => {
-    const converted: SubjectHours = { math: 0, english: 0, korean: 0, science: 0, etc: 0 };
+    const converted: SubjectHours = { math: 0, english: 0, korean: 0, science: 0, social: 0, etc: 0 };
     for (const key of Object.keys(converted) as (keyof SubjectHours)[]) {
       const { h, m } = manualHours[key];
       converted[key] = Math.round((h + m / 60) * 10) / 10;
@@ -310,7 +311,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '분석 실패');
       setHours({ math: data.math ?? 0, english: data.english ?? 0, korean: data.korean ?? 0,
-        science: (data.science ?? 0) + (data.social ?? 0), etc: data.etc ?? 0 });
+        science: data.science ?? 0, social: data.social ?? 0, etc: data.etc ?? 0 });
       setConfidence(data.confidence ?? null);
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : '이미지 분석에 실패했습니다.');

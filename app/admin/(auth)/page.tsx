@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SubjectKey = 'math' | 'english' | 'korean' | 'science' | 'etc';
+type SubjectKey = 'math' | 'english' | 'korean' | 'science' | 'social' | 'etc';
 
 interface Student {
   id: string; name: string; school: string; grade: string;
@@ -24,20 +24,21 @@ interface DailyRecord {
   input_method?: string; verified?: boolean;
 }
 
-interface SubjectHours { math: number; english: number; korean: number; science: number; etc: number; }
+interface SubjectHours { math: number; english: number; korean: number; science: number; social: number; etc: number; }
 type StudentFormData = Omit<Student, 'season_id'>;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SCHOOLS   = ['오천고', '동성고', '영일고', '포은중', '신흥중', '동해중'];
 const SUBJECTS: { key: SubjectKey; label: string }[] = [
-  { key: 'math',    label: '수학'     },
-  { key: 'english', label: '영어'     },
-  { key: 'korean',  label: '국어'     },
-  { key: 'science', label: '과학·사탐' },
-  { key: 'etc',     label: '기타'     },
+  { key: 'math',    label: '수학' },
+  { key: 'english', label: '영어' },
+  { key: 'korean',  label: '국어' },
+  { key: 'science', label: '과학' },
+  { key: 'social',  label: '사회' },
+  { key: 'etc',     label: '기타' },
 ];
-const EMPTY_H: SubjectHours = { math: 0, english: 0, korean: 0, science: 0, etc: 0 };
+const EMPTY_H: SubjectHours = { math: 0, english: 0, korean: 0, science: 0, social: 0, etc: 0 };
 const SEASON_START      = '2026-03-16';
 const TIERS = [
   { name: 'CHALLENGER',  emoji: '🔥', color: '#FF4655', min: 8.0 },
@@ -162,7 +163,7 @@ function TabManualEntry({ students }: { students: Student[] }) {
       .then(r => r.json())
       .then(data => {
         if (data) {
-          setHours({ math: data.math_hours, english: data.english_hours, korean: data.korean_hours, science: data.science_hours + (data.social_hours ?? 0), etc: data.etc_hours });
+          setHours({ math: data.math_hours, english: data.english_hours, korean: data.korean_hours, science: data.science_hours, social: data.social_hours ?? 0, etc: data.etc_hours });
           setIsEdit(true);
         } else {
           setHours(EMPTY_H);
@@ -180,7 +181,7 @@ function TabManualEntry({ students }: { students: Student[] }) {
       body: JSON.stringify({
         student_id: studentId, record_date: date,
         math: hours.math, english: hours.english, korean: hours.korean,
-        science: hours.science, etc: hours.etc,
+        science: hours.science, social: hours.social, etc: hours.etc,
       }),
     });
     const result = await res.json();
@@ -822,7 +823,8 @@ function TabNotifications({ students }: { students: Student[] }) {
       math:    Math.round(recs.reduce((a, r) => a + r.math_hours,    0) * 10) / 10,
       english: Math.round(recs.reduce((a, r) => a + r.english_hours, 0) * 10) / 10,
       korean:  Math.round(recs.reduce((a, r) => a + r.korean_hours,  0) * 10) / 10,
-      science: Math.round(recs.reduce((a, r) => a + r.science_hours + (r.social_hours ?? 0), 0) * 10) / 10,
+      science: Math.round(recs.reduce((a, r) => a + r.science_hours, 0) * 10) / 10,
+      social:  Math.round(recs.reduce((a, r) => a + (r.social_hours ?? 0), 0) * 10) / 10,
       etc:     Math.round(recs.reduce((a, r) => a + r.etc_hours,     0) * 10) / 10,
     };
     const recentDays = days7.map(date => ({
@@ -1132,7 +1134,7 @@ function TabRecords({ students }: { students: Student[] }) {
     setEditRecord(r);
     setEditHours({
       math: r.math_hours, english: r.english_hours, korean: r.korean_hours,
-      science: r.science_hours + (r.social_hours ?? 0), etc: r.etc_hours,
+      science: r.science_hours, social: r.social_hours ?? 0, etc: r.etc_hours,
     });
   };
 
@@ -1145,7 +1147,7 @@ function TabRecords({ students }: { students: Student[] }) {
         body: JSON.stringify({
           id: editRecord.id,
           math_hours: editHours.math, english_hours: editHours.english, korean_hours: editHours.korean,
-          science_hours: editHours.science, etc_hours: editHours.etc,
+          science_hours: editHours.science, social_hours: editHours.social, etc_hours: editHours.etc,
           verified: true,
         }),
       });
@@ -1225,7 +1227,7 @@ function TabRecords({ students }: { students: Student[] }) {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['날짜', '수학', '영어', '국어', '과학·사탐', '기타', '합계', '방식'].map(h => (
+                {['날짜', '수학', '영어', '국어', '과학', '사회', '기타', '합계', '방식'].map(h => (
                   <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500">{h}</th>
                 ))}
               </tr>
@@ -1238,7 +1240,8 @@ function TabRecords({ students }: { students: Student[] }) {
                   <td className="px-3 py-2 tabular-nums text-xs">{r.math_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.english_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.korean_hours}</td>
-                  <td className="px-3 py-2 tabular-nums text-xs">{Math.round((r.science_hours + (r.social_hours ?? 0)) * 10) / 10}</td>
+                  <td className="px-3 py-2 tabular-nums text-xs">{r.science_hours}</td>
+                  <td className="px-3 py-2 tabular-nums text-xs">{r.social_hours ?? 0}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.etc_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs font-bold">{r.total_hours}h</td>
                   <td className="px-3 py-2 text-xs">{methodIcon(r.input_method)}</td>
@@ -1282,7 +1285,7 @@ function TabRecords({ students }: { students: Student[] }) {
         <table className="w-full text-sm min-w-[900px]">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['날짜', '이름', '학교', '수학', '영어', '국어', '과학·사탐', '기타', '합계', '방식', '확인'].map(h => (
+              {['날짜', '이름', '학교', '수학', '영어', '국어', '과학', '사회', '기타', '합계', '방식', '확인'].map(h => (
                 <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-gray-500">{h}</th>
               ))}
             </tr>
@@ -1303,7 +1306,8 @@ function TabRecords({ students }: { students: Student[] }) {
                   <td className="px-3 py-2 tabular-nums text-xs">{r.math_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.english_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.korean_hours}</td>
-                  <td className="px-3 py-2 tabular-nums text-xs">{Math.round((r.science_hours + (r.social_hours ?? 0)) * 10) / 10}</td>
+                  <td className="px-3 py-2 tabular-nums text-xs">{r.science_hours}</td>
+                  <td className="px-3 py-2 tabular-nums text-xs">{r.social_hours ?? 0}</td>
                   <td className="px-3 py-2 tabular-nums text-xs">{r.etc_hours}</td>
                   <td className="px-3 py-2 tabular-nums text-xs font-bold">{r.total_hours}h</td>
                   <td className="px-3 py-2 text-center">{methodIcon(r.input_method)}</td>
@@ -1389,7 +1393,8 @@ function TabStats({ students }: { students: Student[] }) {
         math:    recs.reduce((a, r) => a + r.math_hours,    0),
         english: recs.reduce((a, r) => a + r.english_hours, 0),
         korean:  recs.reduce((a, r) => a + r.korean_hours,  0),
-        science: recs.reduce((a, r) => a + r.science_hours + (r.social_hours ?? 0), 0),
+        science: recs.reduce((a, r) => a + r.science_hours, 0),
+        social:  recs.reduce((a, r) => a + (r.social_hours ?? 0), 0),
         etc:     recs.reduce((a, r) => a + r.etc_hours,     0),
       },
     };

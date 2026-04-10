@@ -4,25 +4,26 @@ import { useEffect, useMemo, useState } from 'react';
 
 // ─── Types / Constants ────────────────────────────────────────────────────────
 
-type SubjectKey = 'math' | 'english' | 'korean' | 'science' | 'etc';
+type SubjectKey = 'math' | 'english' | 'korean' | 'science' | 'social' | 'etc';
 
 interface Student  { id: string; name: string; school: string; grade: string; is_active: boolean; }
 interface DailyRec { student_id: string; math_hours: number; english_hours: number; korean_hours: number; science_hours: number; social_hours: number; etc_hours: number; total_hours: number; }
 
 const TABS: { key: SubjectKey; label: string; color: string; glow: string }[] = [
-  { key: 'math',    label: '수학',      color: '#60A5FA', glow: 'rgba(96,165,250,0.3)'   },
-  { key: 'english', label: '영어',      color: '#34D399', glow: 'rgba(52,211,153,0.3)'   },
-  { key: 'korean',  label: '국어',      color: '#C084FC', glow: 'rgba(192,132,252,0.3)'  },
-  { key: 'science', label: '과학·사탐', color: '#FB923C', glow: 'rgba(251,146,60,0.3)'   },
-  { key: 'etc',     label: '기타',      color: '#94A3B8', glow: 'rgba(148,163,184,0.25)' },
+  { key: 'math',    label: '수학', color: '#60A5FA', glow: 'rgba(96,165,250,0.3)'   },
+  { key: 'english', label: '영어', color: '#34D399', glow: 'rgba(52,211,153,0.3)'   },
+  { key: 'korean',  label: '국어', color: '#C084FC', glow: 'rgba(192,132,252,0.3)'  },
+  { key: 'science', label: '과학', color: '#FB923C', glow: 'rgba(251,146,60,0.3)'   },
+  { key: 'social',  label: '사회', color: '#F43F5E', glow: 'rgba(244,63,94,0.3)'    },
+  { key: 'etc',     label: '기타', color: '#94A3B8', glow: 'rgba(148,163,184,0.25)' },
 ];
 
-// science = science_hours + social_hours 합산
 const SUBJECT_FIELD: { [K in SubjectKey]: keyof DailyRec } = {
   math:    'math_hours',
   english: 'english_hours',
   korean:  'korean_hours',
-  science: 'science_hours', // social_hours는 별도 합산
+  science: 'science_hours',
+  social:  'social_hours',
   etc:     'etc_hours',
 };
 
@@ -54,11 +55,7 @@ export default function RankingPage() {
     return students
       .map(s => {
         const recs  = records.filter(r => r.student_id === s.id);
-        let total = Math.round(recs.reduce((a, r) => a + ((r[field] as number) ?? 0), 0) * 10) / 10;
-        // science 탭이면 social_hours도 합산
-        if (tab === 'science') {
-          total = Math.round((total + recs.reduce((a, r) => a + ((r.social_hours as number) ?? 0), 0)) * 10) / 10;
-        }
+        const total = Math.round(recs.reduce((a, r) => a + ((r[field] as number) ?? 0), 0) * 10) / 10;
         return { ...s, total };
       })
       .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name))
