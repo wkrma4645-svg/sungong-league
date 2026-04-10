@@ -85,34 +85,34 @@ async function fetchActiveRecords(): Promise<DailyRecord[]> {
 }
 
 // ─── Shared: HoursInput ───────────────────────────────────────────────────────
+// 소수점 value를 시간+분으로 분리해서 입력받음 (예: 2.5 → 2시간 30분)
 
 function HoursInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+  const h = Math.floor(value);
+  const m = Math.round((value % 1) * 60);
+  const update = (newH: number, newM: number) => {
+    const hh = Math.max(0, Math.min(23, newH));
+    const mm = Math.max(0, Math.min(59, newM));
+    onChange(Math.round((hh + mm / 60) * 10) / 10);
+  };
   return (
     <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
       <span className="text-sm font-medium text-gray-700 w-24">{label}</span>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(0, Math.round((value - 0.5) * 10) / 10))}
-          className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-bold text-base leading-none"
-        >−</button>
+      <div className="flex items-center gap-2">
         <input
-          type="number"
-          step="0.1"
-          min="0"
-          max="24"
-          value={value}
-          onChange={e => {
-            const v = parseFloat(e.target.value);
-            if (!isNaN(v)) onChange(Math.max(0, Math.min(24, Math.round(v * 10) / 10)));
-          }}
-          className="w-14 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1"
+          type="number" inputMode="numeric" min="0" max="23" step="1"
+          value={h}
+          onChange={e => update(Number(e.target.value) || 0, m)}
+          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5"
         />
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(24, Math.round((value + 0.5) * 10) / 10))}
-          className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-bold text-base leading-none"
-        >+</button>
+        <span className="text-xs text-gray-500">시간</span>
+        <input
+          type="number" inputMode="numeric" min="0" max="59" step="1"
+          value={m}
+          onChange={e => update(h, Number(e.target.value) || 0)}
+          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5"
+        />
+        <span className="text-xs text-gray-500">분</span>
       </div>
     </div>
   );

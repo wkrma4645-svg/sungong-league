@@ -310,8 +310,18 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
       const res = await fetch('/api/records/upload-screenshot', { cache: 'no-store', method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? '분석 실패');
-      setHours({ math: data.math ?? 0, english: data.english ?? 0, korean: data.korean ?? 0,
-        science: data.science ?? 0, social: data.social ?? 0, etc: data.etc ?? 0 });
+      const ocrHours: SubjectHours = {
+        math: data.math ?? 0, english: data.english ?? 0, korean: data.korean ?? 0,
+        science: data.science ?? 0, social: data.social ?? 0, etc: data.etc ?? 0,
+      };
+      setHours(ocrHours);
+      // 수동 수정 시 사용할 시간/분 상태도 동기화
+      const toHM = (v: number) => ({ h: Math.floor(v), m: Math.round((v % 1) * 60) });
+      setManualHours({
+        math: toHM(ocrHours.math), english: toHM(ocrHours.english),
+        korean: toHM(ocrHours.korean), science: toHM(ocrHours.science),
+        social: toHM(ocrHours.social), etc: toHM(ocrHours.etc),
+      });
       setConfidence(data.confidence ?? null);
     } catch (e: unknown) {
       setUploadError(e instanceof Error ? e.message : '이미지 분석에 실패했습니다.');
@@ -497,18 +507,17 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
                 <h2 className="text-gray-800 font-bold text-base">직접 시간 입력</h2>
                 {SUBJECTS.map(({ key, label }) => (
                   <div key={key} className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700 w-16">{label}</span>
-                    <select value={manualHours[key].h} onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: Number(e.target.value) } }))}
-                      className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-gray-800 bg-gray-50 w-[4.5rem] min-h-[44px]">
-                      {Array.from({ length: 13 }, (_, i) => <option key={i} value={i}>{i}시간</option>)}
-                    </select>
-                    <select value={manualHours[key].m} onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: Number(e.target.value) } }))}
-                      className="border border-gray-200 rounded-lg px-2 py-2 text-sm text-gray-800 bg-gray-50 w-[4.5rem] min-h-[44px]">
-                      {[0, 10, 15, 20, 30, 40, 45, 50].map(m => <option key={m} value={m}>{m}분</option>)}
-                    </select>
-                    <span className="text-xs text-gray-400 tabular-nums">
-                      = {Math.round((manualHours[key].h + manualHours[key].m / 60) * 10) / 10}h
-                    </span>
+                    <span className="text-sm font-medium text-gray-700 w-12 flex-shrink-0">{label}</span>
+                    <input type="number" inputMode="numeric" min="0" max="23" step="1"
+                      value={manualHours[key].h}
+                      onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: Math.max(0, Math.min(23, Number(e.target.value) || 0)) } }))}
+                      className="border border-gray-200 rounded-lg px-2 text-center text-sm text-gray-800 bg-gray-50 w-14 min-h-[44px]" />
+                    <span className="text-xs text-gray-500">시간</span>
+                    <input type="number" inputMode="numeric" min="0" max="59" step="1"
+                      value={manualHours[key].m}
+                      onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: Math.max(0, Math.min(59, Number(e.target.value) || 0)) } }))}
+                      className="border border-gray-200 rounded-lg px-2 text-center text-sm text-gray-800 bg-gray-50 w-14 min-h-[44px]" />
+                    <span className="text-xs text-gray-500">분</span>
                   </div>
                 ))}
                 <button type="button" onClick={applyManualHours}
