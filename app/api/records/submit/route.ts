@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     // 전체 레코드 + 학생 정보 조회
     const [{ data: records }, { data: studentRow }] = await Promise.all([
-      supabase.from('daily_records').select('student_id, record_date, total_hours'),
+      supabase.from('daily_records').select('student_id, record_date, total_hours').range(0, 9999),
       supabase.from('students').select('total_goal').eq('id', student_id).single(),
     ]);
 

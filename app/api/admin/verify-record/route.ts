@@ -13,7 +13,8 @@ export async function GET() {
     .from('daily_records')
     .select('id, student_id, record_date, math_hours, english_hours, korean_hours, science_hours, social_hours, etc_hours, total_hours, input_method, verified')
     .eq('input_method', 'manual_student')
-    .order('record_date', { ascending: false });
+    .order('record_date', { ascending: false })
+    .range(0, 9999);
 
   if (error) return noCacheJson({ error: error.message }, { status: 500 });
   return noCacheJson(data ?? []);

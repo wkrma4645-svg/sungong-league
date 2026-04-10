@@ -9,7 +9,8 @@ export async function GET() {
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('daily_records')
-    .select('id, student_id, record_date, math_hours, english_hours, korean_hours, science_hours, social_hours, etc_hours, total_hours, input_method, verified');
+    .select('id, student_id, record_date, math_hours, english_hours, korean_hours, science_hours, social_hours, etc_hours, total_hours, input_method, verified')
+    .range(0, 9999);
 
   if (error) return noCacheJson({ error: error.message }, { status: 500 });
   return noCacheJson(data ?? []);
