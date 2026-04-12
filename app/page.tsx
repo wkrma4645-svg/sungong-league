@@ -509,13 +509,23 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
                   <div key={key} className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-700 w-12 flex-shrink-0">{label}</span>
                     <input type="number" inputMode="numeric" min="0" max="23" step="1"
-                      value={manualHours[key].h}
-                      onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: Math.max(0, Math.min(23, Number(e.target.value) || 0)) } }))}
+                      value={manualHours[key].h === 0 ? '' : manualHours[key].h}
+                      placeholder="0"
+                      onChange={e => {
+                        const raw = e.target.value;
+                        setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: raw === '' ? 0 : parseInt(raw) || 0 } }));
+                      }}
+                      onBlur={() => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], h: Math.max(0, Math.min(23, prev[key].h)) } }))}
                       className="border border-gray-200 rounded-lg px-2 text-center text-sm text-gray-800 bg-gray-50 w-14 min-h-[44px]" />
                     <span className="text-xs text-gray-500">시간</span>
                     <input type="number" inputMode="numeric" min="0" max="59" step="1"
-                      value={manualHours[key].m}
-                      onChange={e => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: Math.max(0, Math.min(59, Number(e.target.value) || 0)) } }))}
+                      value={manualHours[key].m === 0 ? '' : manualHours[key].m}
+                      placeholder="0"
+                      onChange={e => {
+                        const raw = e.target.value;
+                        setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: raw === '' ? 0 : parseInt(raw) || 0 } }));
+                      }}
+                      onBlur={() => setManualHours(prev => ({ ...prev, [key]: { ...prev[key], m: Math.max(0, Math.min(59, prev[key].m)) } }))}
                       className="border border-gray-200 rounded-lg px-2 text-center text-sm text-gray-800 bg-gray-50 w-14 min-h-[44px]" />
                     <span className="text-xs text-gray-500">분</span>
                   </div>

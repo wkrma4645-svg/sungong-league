@@ -88,30 +88,38 @@ async function fetchActiveRecords(): Promise<DailyRecord[]> {
 // 소수점 value를 시간+분으로 분리해서 입력받음 (예: 2.5 → 2시간 30분)
 
 function HoursInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
-  const h = Math.floor(value);
-  const m = Math.round((value % 1) * 60);
-  const update = (newH: number, newM: number) => {
-    const hh = Math.max(0, Math.min(23, newH));
-    const mm = Math.max(0, Math.min(59, newM));
+  const [hStr, setHStr] = useState(String(Math.floor(value)));
+  const [mStr, setMStr] = useState(String(Math.round((value % 1) * 60)));
+
+  // 외부 value가 바뀌면 동기화
+  useEffect(() => {
+    setHStr(String(Math.floor(value)));
+    setMStr(String(Math.round((value % 1) * 60)));
+  }, [value]);
+
+  const commit = (hVal?: string, mVal?: string) => {
+    const hh = Math.max(0, Math.min(23, parseInt(hVal ?? hStr) || 0));
+    const mm = Math.max(0, Math.min(59, parseInt(mVal ?? mStr) || 0));
+    setHStr(String(hh));
+    setMStr(String(mm));
     onChange(Math.round((hh + mm / 60) * 10) / 10);
   };
+
   return (
     <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-2.5 bg-gray-50">
       <span className="text-sm font-medium text-gray-700 w-24">{label}</span>
       <div className="flex items-center gap-2">
-        <input
-          type="number" inputMode="numeric" min="0" max="23" step="1"
-          value={h}
-          onChange={e => update(Number(e.target.value) || 0, m)}
-          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5"
-        />
+        <input type="number" inputMode="numeric" min="0" max="23" step="1"
+          value={hStr} placeholder="0"
+          onChange={e => setHStr(e.target.value)}
+          onBlur={() => commit()}
+          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5" />
         <span className="text-xs text-gray-500">시간</span>
-        <input
-          type="number" inputMode="numeric" min="0" max="59" step="1"
-          value={m}
-          onChange={e => update(h, Number(e.target.value) || 0)}
-          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5"
-        />
+        <input type="number" inputMode="numeric" min="0" max="59" step="1"
+          value={mStr} placeholder="0"
+          onChange={e => setMStr(e.target.value)}
+          onBlur={() => commit()}
+          className="w-12 text-center text-sm font-bold tabular-nums bg-white border border-gray-200 rounded-lg py-1.5" />
         <span className="text-xs text-gray-500">분</span>
       </div>
     </div>
