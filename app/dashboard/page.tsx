@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import GoalProgressBars from '@/components/GoalProgressBars';
@@ -169,13 +169,23 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, []);
 
-  // ── Auto page rotation ──
-  const numPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  // ── Auto slide rotation ──
+  // slide 0: Landing, slide 1..N: leaderboard pages, slide N+1: tier status
+  const leaderboardPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const totalSlides = 1 + leaderboardPages + 1; // landing + pages + tier
+  const [autoPlay, setAutoPlay] = useState(true);
 
   useEffect(() => {
-    rotateTimerRef.current = setInterval(() => setPage(p => (p + 1) % numPages), ROTATE_MS);
+    if (!autoPlay) { if (rotateTimerRef.current) clearInterval(rotateTimerRef.current); return; }
+    rotateTimerRef.current = setInterval(() => setPage(p => (p + 1) % totalSlides), ROTATE_MS);
     return () => { if (rotateTimerRef.current) clearInterval(rotateTimerRef.current); };
-  }, [numPages]);
+  }, [totalSlides, autoPlay]);
+
+  const goSlide = (n: number) => {
+    setPage(n);
+    if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
+    if (autoPlay) rotateTimerRef.current = setInterval(() => setPage(p => (p + 1) % totalSlides), ROTATE_MS);
+  };
 
   // ── Fullscreen ──
   const toggleFullscreen = () => {
@@ -185,9 +195,45 @@ export default function Dashboard() {
 
   // ── Derived ──
   const elapsed          = elapsedDays();
-  const seasonProgress   = Math.round((elapsed / SEASON_TOTAL_DAYS) * 1000) / 10; // 소수 1자리
+  const seasonProgress   = Math.round((elapsed / SEASON_TOTAL_DAYS) * 1000) / 10;
   const participantCount = rows.filter(r => r.total > 0).length;
-  const pageRows         = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const isLanding     = page === 0;
+  const isTierSlide   = page === totalSlides - 1;
+  const leaderboardIdx = page - 1; // 0-based within leaderboard
+  const pageRows       = (!isLanding && !isTierSlide) ? rows.slice(leaderboardIdx * PAGE_SIZE, (leaderboardIdx + 1) * PAGE_SIZE) : [];
+
+  // ── Tier calculations for tier slide ──
+  const tierData = useMemo(() => {
+    // 상위 티어 학생들
+    const upperTiers = TIERS.filter(t => t.min >= 6.0);
+    const upperGroups = upperTiers.map(tier => ({
+      tier,
+      students: rows.filter(r => {
+        const t = getTier(r.daily_avg);
+        return t.name === tier.name;
+      }),
+    }));
+
+    // 티어 변동: 어제 vs 오늘
+    // 어제 일평균 = (total - 오늘 기록) / (elapsed - 1)
+    const risers: { name: string; from: TierEntry; to: TierEntry }[] = [];
+    const fallers: { name: string; from: TierEntry; to: TierEntry }[] = [];
+    for (const r of rows) {
+      if (elapsed <= 1) continue;
+      const todayAvg = r.daily_avg;
+      // 어제까지 일평균 근사: total / elapsed 가 오늘이니, (total - todayRecord) / (elapsed-1)
+      // todayRecord를 정확히 모르니까, yesterday_avg = total / (elapsed - 1) vs today_avg = total / elapsed 로 근사
+      const yesterdayAvg = r.total > 0 ? Math.round((r.total / (elapsed - 1)) * 10) / 10 : 0;
+      const tierToday = getTier(todayAvg);
+      const tierYesterday = getTier(yesterdayAvg);
+      if (TIERS.indexOf(tierToday) < TIERS.indexOf(tierYesterday)) {
+        risers.push({ name: r.name, from: tierYesterday, to: tierToday });
+      } else if (TIERS.indexOf(tierToday) > TIERS.indexOf(tierYesterday)) {
+        fallers.push({ name: r.name, from: tierYesterday, to: tierToday });
+      }
+    }
+    return { upperGroups, risers, fallers };
+  }, [rows, elapsed]);
 
   const MEDAL = ['🥇', '🥈', '🥉'];
   const MEDAL_COLOR = ['#FFD700', '#C0C0C0', '#CD7F32'];
@@ -285,14 +331,16 @@ export default function Dashboard() {
       className="hidden md:flex h-screen flex-col overflow-hidden select-none"
       style={{ background: '#0a0a0f', color: '#E5E7EB' }}
     >
-      {/* ── Progress bar (rotation timer) ── */}
-      <div className="h-0.5 w-full bg-gray-900 overflow-hidden flex-shrink-0">
+      {/* ── Progress bar ── */}
+      <div className="w-full bg-gray-900 overflow-hidden flex-shrink-0" style={{ height: autoPlay ? '6px' : '2px' }}>
         <div
           key={`${page}-progress`}
-          className="h-full bg-blue-600"
+          className="h-full"
           style={{
-            animation: `growWidth ${ROTATE_MS}ms linear forwards`,
-            boxShadow: '0 0 6px #3B82F6',
+            animation: autoPlay ? `growWidth ${ROTATE_MS}ms linear forwards` : 'none',
+            width: autoPlay ? undefined : '100%',
+            background: 'linear-gradient(90deg, #22D3EE, #3B82F6, #8B5CF6)',
+            boxShadow: '0 0 10px #22D3EE',
           }}
         />
       </div>
@@ -358,6 +406,114 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* ── SLIDE: Landing ── */}
+      {isLanding && (
+        <div className="flex-1 flex flex-col items-center justify-center px-8 overflow-hidden">
+          <p className="text-4xl md:text-5xl font-black text-center leading-tight mb-8"
+            style={{ background: 'linear-gradient(135deg, #FFD700, #FF4655, #FF6B00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              textShadow: 'none', filter: 'drop-shadow(0 0 30px rgba(255,70,85,0.4))' }}>
+            상금 100만원의 주인공은<br/>누가 될 것인가?
+          </p>
+          <div className="grid grid-cols-2 gap-6 w-full max-w-4xl">
+            {/* 시즌 시상 */}
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,215,0,0.15)' }}>
+              <h3 className="text-sm font-black tracking-widest text-center mb-4" style={{ color: '#FFD700' }}>🏆 시즌 시상 (분기)</h3>
+              <div className="space-y-2">
+                {[
+                  ['순공왕', '누적 순공 1위', '30만원'],
+                  ['철인상', '최다 연속 인증', '20만원'],
+                  ['점프왕', '티어 최대 상승', '15만원'],
+                  ['루키상', '첫 참가 최고 성적', '10만원'],
+                  ['스프린트', '월간 1위', '5만원/월'],
+                  ['퍼펙트', '100% 인증', '3만원'],
+                ].map(([n, d, p]) => (
+                  <div key={n} className="flex items-center justify-between px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,215,0,0.05)' }}>
+                    <div><span className="text-sm font-bold text-gray-200">{n}</span><span className="text-xs text-gray-500 ml-2">{d}</span></div>
+                    <span className="text-sm font-black" style={{ color: '#FFD700' }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* 연말 시상 */}
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,70,85,0.15)' }}>
+              <h3 className="text-sm font-black tracking-widest text-center mb-4" style={{ color: '#FF4655' }}>🎖 연말 시상식 (12월)</h3>
+              <div className="space-y-2">
+                {[
+                  ['연간 MVP', '4시즌 누적 1위', '100만원'],
+                  ['올해의 루키', '첫 참가 최고 성장', '30만원'],
+                  ['명예의 전당', '연간 챌린저 유지', '네임플레이트'],
+                ].map(([n, d, p]) => (
+                  <div key={n} className="flex items-center justify-between px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,70,85,0.05)' }}>
+                    <div><span className="text-sm font-bold text-gray-200">{n}</span><span className="text-xs text-gray-500 ml-2">{d}</span></div>
+                    <span className="text-sm font-black" style={{ color: '#FF4655' }}>{p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SLIDE: Tier Status ── */}
+      {isTierSlide && (
+        <div className="flex-1 flex flex-col px-8 py-4 overflow-hidden">
+          <h2 className="text-lg font-black tracking-widest text-center mb-4" style={{ color: '#60A5FA' }}>일일 티어 현황</h2>
+          <div className="grid grid-cols-3 gap-4 flex-1 min-h-0">
+            {/* ① 상위 티어 */}
+            <div className="rounded-xl p-4 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <h3 className="text-xs font-bold tracking-widest text-gray-500 mb-3">상위 티어 현황</h3>
+              {tierData.upperGroups.map(({ tier, students: ss }) => (
+                <div key={tier.name} className="mb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{tier.emoji}</span>
+                    <span className="text-sm font-black" style={{ color: tier.color }}>{tier.name}</span>
+                    <span className="text-xs text-gray-600">{ss.length}명</span>
+                  </div>
+                  {ss.length === 0 ? (
+                    <p className="text-xs text-gray-700 pl-8">해당자 없음</p>
+                  ) : ss.map(s => (
+                    <div key={s.student_id} className="flex justify-between pl-8 py-0.5">
+                      <span className="text-sm text-gray-300">{s.name}</span>
+                      <span className="text-sm font-bold tabular-nums" style={{ color: tier.color }}>{s.daily_avg}h</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* ② 상승자 */}
+            <div className="rounded-xl p-4 overflow-y-auto" style={{ background: 'rgba(52,211,153,0.03)', border: '1px solid rgba(52,211,153,0.15)' }}>
+              <h3 className="text-xs font-bold tracking-widest mb-3" style={{ color: '#34D399' }}>🔺 금일 티어 상승자</h3>
+              {tierData.risers.length === 0 ? (
+                <p className="text-sm text-gray-600 text-center py-8">오늘 상승자 없음</p>
+              ) : tierData.risers.map((r, i) => (
+                <div key={i} className="flex items-center gap-2 py-1.5 border-b border-white/5">
+                  <span className="text-sm font-bold text-gray-200">{r.name}</span>
+                  <span className="text-xs font-bold" style={{ color: r.from.color }}>{r.from.emoji}{r.from.name}</span>
+                  <span className="text-green-400">→</span>
+                  <span className="text-xs font-bold" style={{ color: r.to.color }}>{r.to.emoji}{r.to.name}</span>
+                </div>
+              ))}
+            </div>
+            {/* ③ 하락자 */}
+            <div className="rounded-xl p-4 overflow-y-auto" style={{ background: 'rgba(248,113,113,0.03)', border: '1px solid rgba(248,113,113,0.15)' }}>
+              <h3 className="text-xs font-bold tracking-widest mb-3" style={{ color: '#F87171' }}>🔻 금일 티어 하락자</h3>
+              {tierData.fallers.length === 0 ? (
+                <p className="text-sm text-gray-600 text-center py-8">오늘 하락자 없음</p>
+              ) : tierData.fallers.map((r, i) => (
+                <div key={i} className="flex items-center gap-2 py-1.5 border-b border-white/5">
+                  <span className="text-sm font-bold text-gray-200">{r.name}</span>
+                  <span className="text-xs font-bold" style={{ color: r.from.color }}>{r.from.emoji}{r.from.name}</span>
+                  <span className="text-red-400">→</span>
+                  <span className="text-xs font-bold" style={{ color: r.to.color }}>{r.to.emoji}{r.to.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SLIDE: Leaderboard ── */}
+      {!isLanding && !isTierSlide && (<>
       {/* ── Column headers ── */}
       <div className="flex-shrink-0 px-8 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="grid text-xs font-bold uppercase tracking-widest text-gray-600"
@@ -428,25 +584,39 @@ export default function Dashboard() {
         })}
       </div>
 
+      </>)}
+
       {/* ── Footer ── */}
       <footer
         className="flex-shrink-0 px-8 py-2 flex items-center justify-between"
         style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
       >
-        <div className="flex items-center gap-1.5 md:gap-2">
-          {Array.from({ length: numPages }).map((_, i) => (
-            <button key={i} onClick={() => setPage(i)}
+        {/* 좌: ◀ + 페이지 dots + ▶ */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => goSlide((page - 1 + totalSlides) % totalSlides)}
+            className="text-gray-600 hover:text-gray-300 text-lg px-1">◀</button>
+          {Array.from({ length: totalSlides }).map((_, i) => (
+            <button key={i} onClick={() => goSlide(i)}
               style={{ width: i === page ? '20px' : '6px', height: '6px', borderRadius: '3px',
-                background: i === page ? '#3B82F6' : '#1F2937', boxShadow: i === page ? '0 0 8px #3B82F6' : 'none',
+                background: i === page ? '#22D3EE' : '#1F2937', boxShadow: i === page ? '0 0 8px #22D3EE' : 'none',
                 border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
           ))}
-          <span className="ml-3 text-xs text-gray-700 tabular-nums">
-            {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} / {rows.length}명
+          <button onClick={() => goSlide((page + 1) % totalSlides)}
+            className="text-gray-600 hover:text-gray-300 text-lg px-1">▶</button>
+          <span className="ml-2 text-xs text-gray-700 tabular-nums">
+            {isLanding ? '🏠' : isTierSlide ? '티어' : `${leaderboardIdx * PAGE_SIZE + 1}–${Math.min((leaderboardIdx + 1) * PAGE_SIZE, rows.length)} / ${rows.length}명`}
           </span>
         </div>
-        <span className="text-[10px] font-bold tracking-[0.4em] text-gray-800 uppercase">
-          Maple Study League · Realtime Leaderboard
-        </span>
+        {/* 중: 자동전환 토글 */}
+        <div className="flex items-center gap-4">
+          <button onClick={() => setAutoPlay(p => !p)}
+            className="text-xs px-3 py-1 rounded-full border transition-colors"
+            style={{ borderColor: autoPlay ? '#22D3EE' : '#374151', color: autoPlay ? '#22D3EE' : '#6B7280' }}>
+            {autoPlay ? '▶ AUTO' : '⏸ STOP'}
+          </button>
+          <span className="text-[10px] font-bold tracking-[0.3em] text-gray-800 uppercase">Maple Study League</span>
+        </div>
+        {/* 우: 티어 범례 */}
         <div className="flex items-center gap-3">
           {TIERS.slice(0, 5).map(t => (
             <span key={t.name} className="text-[10px] font-bold" style={{ color: t.color, textShadow: `0 0 6px ${t.glow}` }}>
