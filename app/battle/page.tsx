@@ -9,7 +9,6 @@ interface DailyRecord { student_id: string; total_hours: number; }
 
 const SCHOOLS = ['오천고', '동성고', '영일고', '포은중', '신흥중', '동해중'];
 const SEASON_START = '2026-03-16';
-const K = 5; // 베이지안 수축 강도
 
 const MEDAL       = ['🥇', '🥈', '🥉'];
 const MEDAL_COLOR = ['#FFD700', '#C0C0C0', '#CD7F32'];
@@ -26,23 +25,18 @@ function elapsedDays() {
 interface GroupResult {
   label: string;
   n: number;
-  rawAvg: number;      // 단순 평균
-  score: number;       // 베이지안 보정 점수
+  rawAvg: number;
+  score: number;
 }
 
-function calcBayesian(groups: { label: string; avgs: number[] }[], globalAvg: number): GroupResult[] {
+function calcGroups(groups: { label: string; avgs: number[] }[]): GroupResult[] {
   return groups
     .filter(g => g.avgs.length > 0)
     .map(g => {
-      const n      = g.avgs.length;
-      const rawAvg = g.avgs.reduce((a, v) => a + v, 0) / n;
-      const score  = (n / (n + K)) * rawAvg + (K / (n + K)) * globalAvg;
-      return {
-        label:  g.label,
-        n,
-        rawAvg: Math.round(rawAvg * 100) / 100,
-        score:  Math.round(score  * 100) / 100,
-      };
+      const n   = g.avgs.length;
+      const avg = g.avgs.reduce((a, v) => a + v, 0) / n;
+      const rounded = Math.round(avg * 100) / 100;
+      return { label: g.label, n, rawAvg: rounded, score: rounded };
     })
     .sort((a, b) => b.score - a.score);
 }
@@ -155,51 +149,44 @@ export default function BattlePage() {
     });
   }, [students, records, elapsed]);
 
-  // 전체 평균
-  const globalAvg = useMemo(() =>
-    studentAvgs.length ? studentAvgs.reduce((a, s) => a + s.dailyAvg, 0) / studentAvgs.length : 0,
-    [studentAvgs]);
+  // (globalAvg removed — 단순 산술평균 사용)
 
   // 학교별 베이지안
   const schoolRanking = useMemo(() =>
-    calcBayesian(
+    calcGroups(
       SCHOOLS.map(school => ({
         label: school,
         avgs:  studentAvgs.filter(s => s.school === school).map(s => s.dailyAvg),
       })),
-      globalAvg,
     ),
-    [studentAvgs, globalAvg]);
+    [studentAvgs]);
 
   // 학년별 베이지안 — grade는 '고1','고2','고3','중3' 등 문자열
   const gradeRanking = useMemo(() => {
     const gradeSet = Array.from(new Set(studentAvgs.map(s => s.grade))).sort();
-    return calcBayesian(
+    return calcGroups(
       gradeSet.map(g => ({
         label: g,
         avgs: studentAvgs.filter(s => s.grade === g).map(s => s.dailyAvg),
       })),
-      globalAvg,
     );
-  }, [studentAvgs, globalAvg]);
+  }, [studentAvgs]);
 
   // 선생님별 베이지안
   const teacherRanking = useMemo(() => {
     const teachers = Array.from(new Set(studentAvgs.map(s => s.teacher).filter(Boolean))).sort();
-    return calcBayesian(
+    return calcGroups(
       teachers.map(t => ({ label: t, avgs: studentAvgs.filter(s => s.teacher === t).map(s => s.dailyAvg) })),
-      globalAvg,
     );
-  }, [studentAvgs, globalAvg]);
+  }, [studentAvgs]);
 
   // 분반별 베이지안
   const classRanking = useMemo(() => {
     const classes = Array.from(new Set(studentAvgs.map(s => s.class_group).filter(Boolean))).sort();
-    return calcBayesian(
+    return calcGroups(
       classes.map(c => ({ label: c, avgs: studentAvgs.filter(s => s.class_group === c).map(s => s.dailyAvg) })),
-      globalAvg,
     );
-  }, [studentAvgs, globalAvg]);
+  }, [studentAvgs]);
 
   const ranking = tab === 'school' ? schoolRanking : tab === 'grade' ? gradeRanking : tab === 'teacher' ? teacherRanking : classRanking;
   const maxScore   = ranking[0]?.score ?? 1;
@@ -214,7 +201,7 @@ export default function BattlePage() {
           style={{ textShadow: '0 0 20px rgba(96,165,250,0.5)' }}>
           대항전
         </h1>
-        <p className="text-gray-600 text-sm mt-1">베이지안 보정 점수 기준 (수축강도 k=5)</p>
+        <p className="text-gray-600 text-sm mt-1">그룹별 일평균 순공시간 기준</p>
       </header>
 
       {/* ── 탭 ── */}
@@ -240,12 +227,10 @@ export default function BattlePage() {
         ))}
       </div>
 
-      {/* ── 베이지안 설명 박스 ── */}
+      {/* ── 설명 ── */}
       <div className="mx-3 sm:mx-6 mt-4 px-3 sm:px-4 py-3 rounded-xl text-xs text-gray-600"
         style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <span className="text-gray-500 font-semibold">보정 공식: </span>
-        보정점수 = (n / (n+{K})) × 그룹평균 + ({K} / (n+{K})) × 전체평균
-        <span className="ml-2 text-gray-700">· 전체평균 {Math.round(globalAvg * 100) / 100}h</span>
+        그룹 소속 학생들의 일평균 순공시간을 산술평균하여 순위를 매깁니다.
       </div>
 
       {/* ── 랭킹 ── */}

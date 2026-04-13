@@ -32,7 +32,9 @@
       "Bash(sed -i \"2i import { noCacheJson } from '@/lib/no-cache';\" app/api/students/auth/route.ts)",
       "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/students/auth/route.ts)",
       "Bash(sed -i \"2i import { noCacheJson } from '@/lib/no-cache';\" app/api/students/update-goal/route.ts)",
-      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/students/update-goal/route.ts)"
+      "Bash(sed -i 's|return Response\\\\.json\\(|return noCacheJson\\(|g' app/api/students/update-goal/route.ts)",
+      "Bash(sed -i '/globalAvg,$/d' app/battle/page.tsx)",
+      "Bash(sed -i 's/, globalAvg\\)/\\)/g' app/battle/page.tsx)"
     ]
   }
 }
