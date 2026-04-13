@@ -102,7 +102,7 @@ function HoursInput({ label, value, onChange }: { label: string; value: number; 
     const mm = Math.max(0, Math.min(59, parseInt(mVal ?? mStr) || 0));
     setHStr(String(hh));
     setMStr(String(mm));
-    onChange(Math.round((hh + mm / 60) * 10) / 10);
+    onChange(Math.round((hh + mm / 60) * 100) / 100);
   };
 
   return (

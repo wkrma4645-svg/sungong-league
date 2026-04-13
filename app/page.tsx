@@ -274,7 +274,7 @@ function RecordScreen({ session, onLogout, onUpdateSession }: {
     const converted: SubjectHours = { math: 0, english: 0, korean: 0, science: 0, social: 0, etc: 0 };
     for (const key of Object.keys(converted) as (keyof SubjectHours)[]) {
       const { h, m } = manualHours[key];
-      converted[key] = Math.round((h + m / 60) * 10) / 10;
+      converted[key] = Math.round((h + m / 60) * 100) / 100;
     }
     setHours(converted);
   };
